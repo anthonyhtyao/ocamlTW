@@ -26,6 +26,7 @@ let () =
            ~title:"ocamlTW"
            ~css:[["css";"ocamlTW.css"]]
            Html.F.(body [
-             h1 [pcdata "Welcome from OcamlTW!"];
+             h1 [pcdata "Welcome to OcamlTW!"];
              h2 [pcdata "我們將在這裡介紹Ocaml!!!!!"];
+             h3 [pcdata "歡迎多多來參觀"];
            ])))
