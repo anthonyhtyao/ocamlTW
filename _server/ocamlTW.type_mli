@@ -1,7 +1,0 @@
-val __eliom__compilation_unit_id__hhsa_n : string
-module OcamlTW_app : Eliom_registration.APP
-val main_service :
-  (unit, unit, Eliom_service.get, Eliom_service.att, Eliom_service.non_co,
-   Eliom_service.non_ext, Eliom_service.reg, [ `WithoutSuffix ], unit, 
-   unit, OcamlTW_app.return)
-  Eliom_service.t
