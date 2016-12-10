@@ -2,3 +2,4 @@ Dec 10 02:51:52: ocsipersist:dbm: Initializing ...
 Dec 10 02:51:54: ocsipersist:dbm: Launching a new Ocsidbm process: /home/htyao/.opam/4.02.3/lib/ocsigenserver/extensions/ocsidbm on directory local/var/data/ocamlTW/ocsipersist.
 Dec 10 02:51:54: ocsipersist:dbm: ...Initialization complete
 Dec 10 02:51:54: ocsigen:config: While parsing config file, tag <host>: No defaulthostname, assuming it is "htyao"
+Dec 10 10:22:41: ocsigen:config: While parsing config file, tag <host>: No defaulthostname, assuming it is "yuguan-UX32VD"

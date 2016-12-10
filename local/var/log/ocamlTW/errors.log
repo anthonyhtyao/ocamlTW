@@ -1,0 +1,9 @@
+Dec 10 10:08:08: ocsigen:main: Fatal - The port 8080 is already in use.
+Dec 10 10:12:30: ocsigen:main: Fatal - Findlib package ocsigenserver.ext.ocsipersist-dbm not found: maybe you forgot <findlib path="..."/>?
+Dec 10 10:13:25: ocsigen:main: Fatal - The port 8080 is already in use.
+Dec 10 10:13:41: ocsigen:main: Fatal - Findlib package ocsigenserver.ext.ocsipersist-dbm not found: maybe you forgot <findlib path="..."/>?
+Dec 10 10:14:13: ocsigen:main: Fatal - The port 8080 is already in use.
+Dec 10 10:14:33: ocsigen:main: Fatal - Findlib package ocsigenserver.ext.ocsipersist-dbm not found: maybe you forgot <findlib path="..."/>?
+Dec 10 10:17:00: ocsigen:main: Fatal - The port 8080 is already in use.
+Dec 10 10:17:27: ocsigen:main: Fatal - Findlib package ocsigenserver.ext.ocsipersist-dbm not found: maybe you forgot <findlib path="..."/>?
+Dec 10 10:22:21: ocsigen:main: Fatal - The port 8080 is already in use.
