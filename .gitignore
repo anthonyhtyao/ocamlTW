@@ -1,3 +1,6 @@
+.depend
+.ocp-indent
+*.swp
 *.annot
 *.cmo
 *.cma
