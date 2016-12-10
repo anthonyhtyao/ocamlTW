@@ -1,0 +1,4 @@
+_client/ocamlTW.cmo :
+_client/ocamlTW.cmx :
+_client/ocamlTW.cmo : _server/ocamlTW.type_mli
+_client/ocamlTW.cmx : _server/ocamlTW.type_mli
