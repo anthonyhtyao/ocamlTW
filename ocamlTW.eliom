@@ -17,16 +17,22 @@ let main_service =
     ~meth:(Eliom_service.Get Eliom_parameter.unit)
     ()
 
+let skeleton title_name body_content = 
+  Lwt.return 
+    (html
+      (head (title (pcdata title_name)) [])
+      (body body_content))
+
 let () =
   OcamlTW_app.register
     ~service:main_service
     (fun () () ->
-      Lwt.return
-        (Eliom_tools.F.html
-           ~title:"ocamlTW"
-           ~css:[["css";"ocamlTW.css"]]
-           Html.F.(body [
-             h1 [pcdata "Welcome to OcamlTW!"];
-             h2 [pcdata "我們將在這裡介紹Ocaml!!!!!"];
-             h3 [pcdata "歡迎多多來參觀"];
-           ])))
+      ignore [%client (Dom_html.window##alert (Js.string 
+        (Printf.sprintf "Hello")): unit)];
+      skeleton 
+        "ocamlTW"
+        [h1 [pcdata "Welcome to OcamlTW!"];
+         h2 [pcdata "我們將在這裡介紹Ocaml!!!!!"];
+         h3 [pcdata "歡迎多多來參觀"];])
+
+(*let%client _ = Eliom_lib.alert "Hello!"*)

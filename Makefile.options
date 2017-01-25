@@ -6,7 +6,7 @@
 PROJECT_NAME := ocamlTW
 
 # Source files for the server
-SERVER_FILES := $(wildcard *.eliomi *.eliom)
+SERVER_FILES := ocamlTW.eliom #$(wildcard *.eliomi *.eliom)
 # Source files for the client
 CLIENT_FILES := $(wildcard *.eliomi *.eliom)
 
@@ -36,7 +36,7 @@ WWWGROUP := www-data
 PORT := 80
 
 # Port for testing (make test.*)
-TEST_PORT := 8080
+TEST_PORT := 8081
 
 # Root of installation (must end with /)
 PREFIX := /usr/local/
