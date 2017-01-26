@@ -1,3 +1,11 @@
 * {
     font-family: sans-serif;
 }
+
+.test {
+    color: red;
+}
+
+.border {
+    border: 1px solid orange;
+}
