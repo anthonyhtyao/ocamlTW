@@ -2,34 +2,8 @@
     open Eliom_lib
     open Eliom_content
     open Html.D
+    open Database
 ]
-
-
-(* Database *)
-
-module Lwt_thread = struct
-  include Lwt
-  include Lwt_chan
-end
-(*module Lwt_PGOCamml = PGOCaml_generic.Make(Lwt_thread)
-module Lwt_Query = Query.Make_with_Db(Lwt_thread)(Lwt_PGOCaml)
-
-let get_db : unit -> unit Lwt_PGOCaml.t Lwt.t =
-  let db_handler = ref None in
-  fun () ->
-    match !db_handler with
-      | Some h -> Lwt.return h
-      | None -> Lwt_PGOCaml.connect ~database:"testbase" ()
-*)
-
-(* App module *)
-
-module OCamlTW_app =
-  Eliom_registration.App (
-    struct
-      let application_name = "OCamlTW"
-      let global_data_path = None
-    end)
 
 
 (* Services *)
@@ -131,12 +105,15 @@ let () =
     (fun () () ->
       ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Hello")): unit)];
+      let%lwt b = check_pwd "hello" "use" in
+      let%lwt b2 = check_pwd "heddllo" "use" in
       skeleton 
         "OCamlTW"
         [
          h1 ~a:[a_class ["test"]] [pcdata "Welcome to OcamlTW!"];
          h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
+         p [pcdata ((if b then "hi" else "qq")^(if b2 then "1" else "2"))];
          ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
              li [a ~service:related_service [pcdata "related"] ()]]]);
 
