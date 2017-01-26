@@ -59,6 +59,33 @@ let article_service =
            Eliom_parameter.(suffix (string "ar_class" ** string "ar_title")))
     ()
 
+let navbar () =
+  nav ~a:[a_class ["navbar"; "navbar-default"]] 
+  [
+    div ~a:[a_class ["navbar-header"]]
+    [
+      a ~service:main_service ~a:[a_class ["navbar-brand"]] 
+      [
+        ul ~a:[a_class ["list-inline"]]
+        [
+          li [pcdata "OCAML"];
+          li [img ~alt:("Ocaml Logo")
+              ~src:(make_uri ~service:(Eliom_service.static_dir ()) ["fig";"ocaml.png"])
+              ~a:[a_width 25]
+              ()
+          ]
+        ]
+      ] ();
+    ];
+    div ~a:[a_class ["collapse";"navbar-collapse"]]
+    [
+      ul ~a:[a_class ["nav";"navbar-nav";"navbar-right"]]
+      [
+        li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
+        li [a ~service:related_service [pcdata "related"] ()]
+      ]
+    ]
+  ]
 
 (* Import .css file in head *)
 
@@ -70,7 +97,7 @@ let skeleton title_name body_content =
                           ["css";"bootstrap.min.css"]) ();
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
                           ["css";"ocamlTW.css"]) ();])
-      (body body_content))
+      (body (navbar()::body_content)))
 
 let test () =
     div ~a:[a_class ["col-md-6"]]
@@ -92,9 +119,9 @@ let () =
         (Printf.sprintf "Hello")): unit)];
       skeleton 
         "OCamlTW"
-        [test ();
-         h1 ~a:[a_class ["test"]] [pcdata "Welcome to OCamlTW!"];
-         h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹OCaml!!!!!"];
+        [
+         h1 ~a:[a_class ["test"]] [pcdata "Welcome to OcamlTW!"];
+         h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
          ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
              li [a ~service:related_service [pcdata "related"] ()]]]);

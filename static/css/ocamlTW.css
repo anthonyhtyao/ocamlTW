@@ -9,3 +9,12 @@
 .border {
     border: 1px solid orange;
 }
+
+.navbar {
+    background-color:#ff944d;
+    color: white;
+}
+
+.up {
+    z-index:10;
+}
