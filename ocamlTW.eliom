@@ -4,12 +4,18 @@
     open Html.D
 ]
 
-module OcamlTW_app =
+
+(* App module *)
+
+module OCamlTW_app =
   Eliom_registration.App (
     struct
-      let application_name = "ocamlTW"
+      let application_name = "OCamlTW"
       let global_data_path = None
     end)
+
+
+(* Services *)
 
 let main_service =
   Eliom_service.create
@@ -17,13 +23,28 @@ let main_service =
     ~meth:(Eliom_service.Get Eliom_parameter.unit)
     ()
 
+let ocamltuto_service =
+  Eliom_service.create
+    ~path:(Eliom_service.Path ["OCaml-tuto"])
+    ~meth:(Eliom_service.Get Eliom_parameter.unit)
+    ()
+    
+let related_service =
+  Eliom_service.create
+    ~path:(Eliom_service.Path ["related-articles"])
+    ~meth:(Eliom_service.Get Eliom_parameter.unit)
+    ()
+
 let article_service = 
   Eliom_service.create
     ~path:(Eliom_service.Path [])
-    ~meth:(Eliom_service.Get Eliom_parameter.(suffix (string "ar_title")))
+    ~meth:(Eliom_service.Get 
+           Eliom_parameter.(suffix (string "ar_class" ** string "ar_title")))
     ()
 
+
 (* Import .css file in head *)
+
 let skeleton title_name body_content = 
   Lwt.return 
     (html
@@ -42,25 +63,34 @@ let test () =
      ]
     ]
 
+
+(* Register services *)
+
 let () =
 
-  OcamlTW_app.register
+  OCamlTW_app.register
     ~service:main_service
     (fun () () ->
       ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Hello")): unit)];
       skeleton 
-        "ocamlTW"
-        [
-         test ();
-         h1 ~a:[a_class ["test"]] [pcdata "Welcome to OcamlTW!"];
-         h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
+        "OCamlTW"
+        [test ();
+         h1 ~a:[a_class ["test"]] [pcdata "Welcome to OCamlTW!"];
+         h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹OCaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
-         p [a ~service:article_service [pcdata "An article"] "article"]]);
+         p [a ~service:article_service [pcdata "An article"] ("t","article")]]);
 
-  OcamlTW_app.register
+  OCamlTW_app.register
+    ~service:ocamltuto_service
+    (fun () () ->
+      skeleton "OCaml Tuto"
+        [p [a ~service:article_service [pcdata "article"] ("class","art")]]);
+        
+
+  OCamlTW_app.register
     ~service:article_service
-    (fun ar_title () ->
+    (fun (ar_class,ar_title) () ->
       ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Meow Meow")): unit)];
       skeleton
