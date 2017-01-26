@@ -11,6 +11,10 @@
 }
 
 .navbar {
-    background-color: black;
+    background-color:#ff944d;
     color: white;
+}
+
+.up {
+    z-index:10;
 }

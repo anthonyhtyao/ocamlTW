@@ -47,7 +47,18 @@ let navbar () =
   [
     div ~a:[a_class ["navbar-header"]]
     [
-      a ~service:main_service ~a:[a_class ["navbar-brand"]] [pcdata "OCAML"] ();
+      a ~service:main_service ~a:[a_class ["navbar-brand"]] 
+      [
+        ul ~a:[a_class ["list-inline"]]
+        [
+          li [pcdata "OCAML"];
+          li [img ~alt:("Ocaml Logo")
+              ~src:(make_uri ~service:(Eliom_service.static_dir ()) ["fig";"ocaml.png"])
+              ~a:[a_width 25]
+              ()
+          ]
+        ]
+      ] ();
     ];
     div ~a:[a_class ["collapse";"navbar-collapse"]]
     [
