@@ -79,14 +79,22 @@ let () =
          h1 ~a:[a_class ["test"]] [pcdata "Welcome to OCamlTW!"];
          h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹OCaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
-         p [a ~service:article_service [pcdata "An article"] ("t","article")]]);
+         ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
+             li [a ~service:related_service [pcdata "related"] ()]]]);
 
   OCamlTW_app.register
     ~service:ocamltuto_service
     (fun () () ->
       skeleton "OCaml Tuto"
-        [p [a ~service:article_service [pcdata "article"] ("class","art")]]);
+        [p [a ~service:article_service [pcdata "article"] 
+            ("Ocaml-Tuto","art")]]);
         
+  OCamlTW_app.register
+    ~service:related_service
+    (fun () () ->
+      skeleton "related"
+        [p [a ~service:article_service [pcdata "article"] 
+            ("related-articles","art")]]);
 
   OCamlTW_app.register
     ~service:article_service
@@ -96,6 +104,7 @@ let () =
       skeleton
         ar_title
         [h1 [pcdata "we will put an article here"];
-         p [pcdata ("article name: "^ar_title)]])
+         p [pcdata ("article name: "^ar_title)];
+         p [a ~service:main_service [pcdata "home"] ()]])
 
 (*let%client _ = Eliom_lib.alert "Hello!"*)
