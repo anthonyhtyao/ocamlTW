@@ -69,7 +69,7 @@ let skeleton title_name body_content =
                           ["css";"bootstrap.min.css"]) ();
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
                           ["css";"ocamlTW.css"]) ();])
-      (body body_content))
+      (body (navbar()::body_content)))
 
 let test () =
     div ~a:[a_class ["col-md-6"]]
@@ -92,7 +92,6 @@ let () =
       skeleton 
         "OCamlTW"
         [
-         navbar ();
          h1 ~a:[a_class ["test"]] [pcdata "Welcome to OcamlTW!"];
          h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
