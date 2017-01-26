@@ -9,3 +9,20 @@
 .border {
     border: 1px solid orange;
 }
+
+.navbar {
+    background-color:#ff944d;
+    color: white;
+}
+
+.content {
+    min-height:86%;
+}
+
+html {
+    height:100%;
+}
+
+body {
+    height:100%;
+}
