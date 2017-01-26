@@ -6,6 +6,12 @@
 ]
 
 
+module OCamlTW_app =
+  Eliom_registration.App (struct
+    let application_name = "OCamlTW"
+    let global_data_path = None
+  end)
+
 (* Services *)
 
 let main_service =
