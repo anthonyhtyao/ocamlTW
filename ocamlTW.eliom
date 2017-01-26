@@ -5,6 +5,23 @@
 ]
 
 
+(* Database *)
+
+module Lwt_thread = struct
+  include Lwt
+  include Lwt_chan
+end
+module Lwt_PGOCamml = PGOCaml_generic.Make(Lwt_thread)
+module Lwt_Query = Query.Make_with_Db(Lwt_thread)(Lwt_PGOCaml)
+
+let get_db : unit -> unit Lwt_PGOCaml.t Lwt.t =
+  let db_handler = ref None in
+  fun () ->
+    match !db_handler with
+      | Some h -> Lwt.return h
+      | None -> Lwt_PGOCaml.connect ~database:"testbase" ()
+
+
 (* App module *)
 
 module OCamlTW_app =
