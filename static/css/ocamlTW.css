@@ -15,6 +15,14 @@
     color: white;
 }
 
-.up {
-    z-index:10;
+.content {
+    min-height:86%;
+}
+
+html {
+    height:100%;
+}
+
+body {
+    height:100%;
 }
