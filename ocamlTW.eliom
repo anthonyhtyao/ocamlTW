@@ -42,6 +42,22 @@ let article_service =
            Eliom_parameter.(suffix (string "ar_class" ** string "ar_title")))
     ()
 
+let navbar () =
+  nav ~a:[a_class ["navbar"; "navbar-default"]] 
+  [
+    div ~a:[a_class ["navbar-header"]]
+    [
+      a ~service:main_service ~a:[a_class ["navbar-brand"]] [pcdata "OCAML"] ();
+    ];
+    div ~a:[a_class ["collapse";"navbar-collapse"]]
+    [
+      ul ~a:[a_class ["nav";"navbar-nav";"navbar-right"]]
+      [
+        li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
+        li [a ~service:related_service [pcdata "related"] ()]
+      ]
+    ]
+  ]
 
 (* Import .css file in head *)
 
@@ -75,9 +91,10 @@ let () =
         (Printf.sprintf "Hello")): unit)];
       skeleton 
         "OCamlTW"
-        [test ();
-         h1 ~a:[a_class ["test"]] [pcdata "Welcome to OCamlTW!"];
-         h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹OCaml!!!!!"];
+        [
+         navbar ();
+         h1 ~a:[a_class ["test"]] [pcdata "Welcome to OcamlTW!"];
+         h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
          ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
              li [a ~service:related_service [pcdata "related"] ()]]]);

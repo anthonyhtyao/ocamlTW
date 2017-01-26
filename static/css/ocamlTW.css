@@ -9,3 +9,8 @@
 .border {
     border: 1px solid orange;
 }
+
+.navbar {
+    background-color: black;
+    color: white;
+}
