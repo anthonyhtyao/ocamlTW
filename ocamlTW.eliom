@@ -11,7 +11,7 @@ module Lwt_thread = struct
   include Lwt
   include Lwt_chan
 end
-module Lwt_PGOCamml = PGOCaml_generic.Make(Lwt_thread)
+(*module Lwt_PGOCamml = PGOCaml_generic.Make(Lwt_thread)
 module Lwt_Query = Query.Make_with_Db(Lwt_thread)(Lwt_PGOCaml)
 
 let get_db : unit -> unit Lwt_PGOCaml.t Lwt.t =
@@ -20,7 +20,7 @@ let get_db : unit -> unit Lwt_PGOCaml.t Lwt.t =
     match !db_handler with
       | Some h -> Lwt.return h
       | None -> Lwt_PGOCaml.connect ~database:"testbase" ()
-
+*)
 
 (* App module *)
 
@@ -87,6 +87,12 @@ let navbar () =
     ]
   ]
 
+let footer () =
+  [      
+    hr ();
+    p ~a:[a_class ["text-center"]] [pcdata "2017"]
+  ]
+
 (* Import .css file in head *)
 
 let skeleton title_name body_content = 
@@ -97,7 +103,7 @@ let skeleton title_name body_content =
                           ["css";"bootstrap.min.css"]) ();
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
                           ["css";"ocamlTW.css"]) ();])
-      (body (navbar()::body_content)))
+      (body (navbar()::body_content@footer ())))
 
 let test () =
     div ~a:[a_class ["col-md-6"]]
