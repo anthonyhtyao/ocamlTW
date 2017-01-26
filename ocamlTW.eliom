@@ -23,11 +23,24 @@ let article_service =
     ~meth:(Eliom_service.Get Eliom_parameter.(suffix (string "ar_title")))
     ()
 
+(* Import .css file in head *)
 let skeleton title_name body_content = 
   Lwt.return 
     (html
-      (head (title (pcdata title_name)) [])
+      (head (title (pcdata title_name)) 
+        [css_link ~uri:(make_uri (Eliom_service.static_dir ())
+                          ["css";"bootstrap.min.css"]) ();
+         css_link ~uri:(make_uri (Eliom_service.static_dir ())
+                          ["css";"ocamlTW.css"]) ();])
       (body body_content))
+
+let test () =
+    div ~a:[a_class ["col-md-6"]]
+    [div ~a:[a_class ["panel";"panel-default"]]
+     [div ~a:[a_class ["panel-heading"]] [pcdata "This is title"];
+      div ~a:[a_class ["panel-body"]] [pcdata "This is content"];
+     ]
+    ]
 
 let () =
 
@@ -38,8 +51,10 @@ let () =
         (Printf.sprintf "Hello")): unit)];
       skeleton 
         "ocamlTW"
-        [h1 [pcdata "Welcome to OcamlTW!"];
-         h2 [pcdata "我們將在這裡介紹Ocaml!!!!!"];
+        [
+         test ();
+         h1 ~a:[a_class ["test"]] [pcdata "Welcome to OcamlTW!"];
+         h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
          p [a ~service:article_service [pcdata "An article"] "article"]]);
 
