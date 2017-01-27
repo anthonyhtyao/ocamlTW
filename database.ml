@@ -11,7 +11,7 @@ let get_db : unit -> unit Lwt_PGOCaml.t Lwt.t =
   fun () ->
     match !db_handler with
       | Some h -> Lwt.return h
-      | None -> Lwt_PGOCaml.connect ~database:"OCamlTW" ()
+      | None -> Lwt_PGOCaml.connect ~database:"OCamlTW" ~user:"postgres" ()
 
 let table = <:table< users (
   login text NOT NULL,

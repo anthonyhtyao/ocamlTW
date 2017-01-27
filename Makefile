@@ -168,6 +168,9 @@ $(TEST_PREFIX)$(LIBDIR)/$(PROJECT_NAME).cmxa: $(call objs,$(ELIOM_SERVER_DIR),cm
           $(call objs,$(ELIOM_SERVER_DIR),cmx,$(DATAB_FILES)) \
 		  $(call depsort,$(ELIOM_SERVER_DIR),cmx,-server,$(SERVER_INC),$(SERVER_FILES))
 
+%.cmxs: %.cmxa
+	${ELIOMOPT} -a -o $@ $(GENERATE_DEBUG) $<
+
 ${ELIOM_SERVER_DIR}/%.cmi: %.mli
 	${ELIOMC} -c ${SERVER_INC} $(GENERATE_DEBUG) $<
 
@@ -195,9 +198,8 @@ CLIENT_OBJS := $(filter %.eliom %.ml, $(CLIENT_FILES))
 CLIENT_OBJS := $(patsubst %.eliom,${ELIOM_CLIENT_DIR}/%.cmo, ${CLIENT_OBJS})
 CLIENT_OBJS := $(patsubst %.ml,${ELIOM_CLIENT_DIR}/%.cmo, ${CLIENT_OBJS})
 
-$(TEST_PREFIX)$(ELIOMSTATICDIR)/$(PROJECT_NAME).js: $(call objs,$(ELIOM_CLIENT_DIR),cmo,$(CLIENT_FILES) (DATAB_FILES)) | $(TEST_PREFIX)$(ELIOMSTATICDIR)
+$(TEST_PREFIX)$(ELIOMSTATICDIR)/$(PROJECT_NAME).js: $(call objs,$(ELIOM_CLIENT_DIR),cmo,$(CLIENT_FILES)) | $(TEST_PREFIX)$(ELIOMSTATICDIR)
 	${JS_OF_ELIOM} -o $@ $(GENERATE_DEBUG) $(CLIENT_INC) $(DEBUG_JS) \
-		  $(call objs, $(ELIOM_CLIENT_DIR),cmo,$(DATAB_FILES))\
           $(call depsort,$(ELIOM_CLIENT_DIR),cmo,-server,$(CLIENT_INC),$(CLIENT_FILES))
 
 ${ELIOM_CLIENT_DIR}/%.cmi: %.mli
