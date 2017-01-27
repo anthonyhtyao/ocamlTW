@@ -52,7 +52,7 @@ let navbar () =
           [
             li [pcdata "OCAML"];
             li [img ~alt:("Ocaml Logo")
-                ~src:(make_uri ~service:(Eliom_service.static_dir ()) ["fig";"ocaml.png"])
+                ~src:(make_uri ~service:(Eliom_service.static_dir ()) ["fig";"OCaml.png"])
                 ~a:[a_width 25]
                 ()
             ]
@@ -88,7 +88,7 @@ let skeleton title_name body_content =
         [css_link ~uri:(make_uri (Eliom_service.static_dir ())
                           ["css";"bootstrap.min.css"]) ();
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
-                          ["css";"ocamlTW.css"]) ();])
+                          ["css";"OCamlTW.css"]) ();])
       (body (navbar()::
               [div ~a:[a_class ["col-md-8";"col-md-offset-2";"content"]] body_content]@
                 footer ())))
@@ -148,4 +148,4 @@ let () =
          p [pcdata ("article name: "^ar_title)];
          p [a ~service:main_service [pcdata "home"] ()]])
 
-(*let%client _ = Eliom_lib.alert "Hello!"*)
+let%client _ = Eliom_lib.alert "Hello!"

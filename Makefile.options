@@ -3,19 +3,19 @@
 #           SETTINGS FOR THE ELIOM PROJECT ocamlTW
 #----------------------------------------------------------------------
 
-PROJECT_NAME := ocamlTW
+PROJECT_NAME := OCamlTW
 
 # Source files for the server
-SERVER_FILES := ocamlTW.eliom #$(wildcard *.eliomi *.eliom)
+SERVER_FILES := OCamlTW.eliom 
 DATAB_FILES := database.ml
 # Source files for the client
-CLIENT_FILES := ocamlTW.eliom #$(wildcard *.eliomi *.eliom)
+CLIENT_FILES := OCamlTW.eliom 
 
 # OCamlfind packages for the server
 SERVER_PACKAGES := lwt.ppx js_of_ocaml.deriving.ppx macaque.syntax
 # OCamlfind packages for the client
-CLIENT_PACKAGES := lwt.unix lwt.ppx js_of_ocaml.ppx js_of_ocaml.deriving.ppx \
-  macaque.syntax
+CLIENT_PACKAGES := lwt.ppx js_of_ocaml.ppx js_of_ocaml.deriving.ppx \
+  macaque.syntax 
 
 # Directory with files to be statically served
 LOCAL_STATIC = static
