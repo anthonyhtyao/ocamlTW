@@ -15,7 +15,7 @@ CLIENT_FILES := OCamlTW.eliom
 SERVER_PACKAGES := lwt.ppx js_of_ocaml.deriving.ppx macaque.syntax
 # OCamlfind packages for the client
 CLIENT_PACKAGES := lwt.ppx js_of_ocaml.ppx js_of_ocaml.deriving.ppx \
-  macaque.syntax 
+  macaque.syntax
 
 # Directory with files to be statically served
 LOCAL_STATIC = static
