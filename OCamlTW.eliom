@@ -113,6 +113,7 @@ let () =
         (Printf.sprintf "Hello")): unit)];
       let%lwt b = check_pwd "hello" "use" in
       let%lwt b2 = check_pwd "heddllo" "use" in
+      let%lwt pwd = find_pwd "hooo" in
       skeleton 
         "OCamlTW"
         [
@@ -120,6 +121,7 @@ let () =
          h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
          p [pcdata ((if b then "hi" else "qq")^(if b2 then "1" else "2"))];
+         p [pcdata pwd];
          ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
              li [a ~service:related_service [pcdata "related"] ()]]]);
 
