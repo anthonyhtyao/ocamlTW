@@ -131,20 +131,33 @@ let () =
     (fun () () ->
       skeleton "OCaml Tuto"
         [p [a ~service:article_service [pcdata "Why OCaml?"] 
-            ("OcamlTuto","why-ocaml")]]);
+            ("OCaml-Tuto","why-ocaml")]]);
         
   OCamlTW_app.register
     ~service:related_service
     (fun () () ->
-      skeleton "related"
-        [p [a ~service:article_service [pcdata "article"] 
-            ("related-articles","art")]]);
+      let%lwt related_ids = articles_of_theme "Related" in
+      let related_ids = List.map 
+        (fun sqlid -> Sql.get sqlid#id) related_ids in
+      let related_ars = List.map find_article_id related_ids in
+      let body = Lwt_list.map_s
+        (fun ar -> let%lwt ar = ar in Lwt.return (
+                   li [a ~service:article_service 
+                         [pcdata (Sql.get ar#title)] 
+                         ("related-articles", (Sql.get ar#slg));
+                       p [pcdata (Sql.get ar#abstract)];
+                       a ~service:article_service 
+                         [pcdata "read more"]
+                         ("related-articles", (Sql.get ar#slg));]))
+        related_ars in
+      let%lwt body = body in
+      skeleton "related" [ul body]);
 
   OCamlTW_app.register
     ~service:article_service
     (fun (ar_theme,ar_slg) () ->
-      ignore [%client (Dom_html.window##alert (Js.string 
-        (Printf.sprintf "Meow Meow")): unit)];
+      (*ignore [%client (Dom_html.window##alert (Js.string 
+        (Printf.sprintf "Meow Meow")): unit)];*)
       let%lwt ar = find_article_slg ar_slg in
       skeleton
         (Sql.get ar#title)
@@ -152,4 +165,4 @@ let () =
          p [pcdata (Sql.get ar#content) ];
          p [a ~service:main_service [pcdata "home"] ()]])
 
-let%client _ = Eliom_lib.alert "Hello!"
+(*let%client _ = Eliom_lib.alert "Hello!"*)

@@ -25,13 +25,13 @@ let get_db : unit -> unit Lwt_PGOCaml.t Lwt.t =
 (* Tables (we don't create them here) *)
 
 let category = <:table< category (
-  id bigint NOT NULL,
+  id integer NOT NULL,
   theme text NOT NULL,
   chapter text NOT NULL)>>
 
 let article = <:table< article (
-  id bigint NOT NULL,
-  category bigint NOT NULL,
+  id integer NOT NULL,
+  category integer NOT NULL,
   title text NOT NULL,
   abstract text NOT NULL,
   content text NOT NULL,
@@ -50,7 +50,27 @@ let find_article_slg slg =
     Lwt_Query.view_one dbh
     <:view< { title = art_.title ;  content = art_.content } |
               art_ in $article$ ; 
-              art_.slg = $string:slg$; >>)
+              art_.slg = $string:slg$ ; >>)
+
+
+let find_article_id id = 
+  get_db () >>= (fun dbh ->
+    Lwt_Query.view_one dbh
+    <:view< { title = art_.title ;
+              abstract = art_.abstract;
+              content = art_.content ; 
+              slg = art_.slg } |
+              art_ in $article$ ; 
+              art_.id = $int32:id$ ; >>)
+
+let articles_of_theme theme =
+  get_db () >>= (fun dbh ->
+    Lwt_Query.view dbh
+    <:view< { id = art_.id } |
+              art_ in $article$ ;
+              cat_ in $category$ ;
+              cat_.theme = $string:theme$ ;
+              cat_.id = art_.category ; >>)
 
 let find name = 
   get_db () >>= (fun dbh ->
