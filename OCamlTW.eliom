@@ -113,7 +113,8 @@ let () =
         (Printf.sprintf "Hello")): unit)];
       let%lwt b = check_pwd "hello" "use" in
       let%lwt b2 = check_pwd "heddllo" "use" in
-      let%lwt pwd = find_pwd "hooo" in
+      let%lwt row = find_pwd "hooo" in
+      let pwd = Sql.get row#pwd in
       skeleton 
         "OCamlTW"
         [
@@ -129,8 +130,8 @@ let () =
     ~service:ocamltuto_service
     (fun () () ->
       skeleton "OCaml Tuto"
-        [p [a ~service:article_service [pcdata "article"] 
-            ("Ocaml-Tuto","art")]]);
+        [p [a ~service:article_service [pcdata "Why OCaml?"] 
+            ("OcamlTuto","why-ocaml")]]);
         
   OCamlTW_app.register
     ~service:related_service
@@ -141,13 +142,14 @@ let () =
 
   OCamlTW_app.register
     ~service:article_service
-    (fun (ar_class,ar_title) () ->
+    (fun (ar_theme,ar_slg) () ->
       ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Meow Meow")): unit)];
+      let%lwt ar = find_article_slg ar_slg in
       skeleton
-        ar_title
-        [h1 [pcdata "we will put an article here"];
-         p [pcdata ("article name: "^ar_title)];
+        (Sql.get ar#title)
+        [h1 [pcdata (Sql.get ar#title)];
+         p [pcdata (Sql.get ar#content) ];
          p [a ~service:main_service [pcdata "home"] ()]])
 
 let%client _ = Eliom_lib.alert "Hello!"

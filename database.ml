@@ -45,6 +45,13 @@ let table = <:table< users (
 
 (* Interact with the database *)
 
+let find_article_slg slg = 
+  get_db () >>= (fun dbh ->
+    Lwt_Query.view_one dbh
+    <:view< { title = art_.title ;  content = art_.content } |
+              art_ in $article$ ; 
+              art_.slg = $string:slg$; >>)
+
 let find name = 
   get_db () >>= (fun dbh ->
    Lwt_Query.view dbh
@@ -75,4 +82,3 @@ let find_pwd name =
   <:view< {pwd = user_.password} | 
            user_ in $table$; 
            user_.login = $string:name$ >>)))
-  >>= (fun row -> Lwt.return (Sql.get row#pwd))
