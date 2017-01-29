@@ -4,9 +4,6 @@
     open Html.D
     open Database
 ]
-[%%client
-  let () = Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
-]
 
 module OCamlTW_app =
   Eliom_registration.App (struct
@@ -117,6 +114,10 @@ let code () =
       code
       [pcdata "let x = 10 in"]
     ]
+
+let%client color_syntax = 
+  Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
+
 (* Register services *)
 
 let () =
@@ -126,6 +127,7 @@ let () =
     (fun () () ->
       ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Hello")): unit)];
+      let _ = [%client (color_syntax():unit)] in
       let%lwt b = check_pwd "hello" "use" in
       let%lwt b2 = check_pwd "heddllo" "use" in
       skeleton 
