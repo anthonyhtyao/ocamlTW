@@ -19,7 +19,7 @@ let get_db : unit -> unit Lwt_PGOCaml.t Lwt.t =
   fun () ->
     match !db_handler with
       | Some h -> Lwt.return h
-      | None -> Lwt_PGOCaml.connect ~database:"OCamlTW" ~user:"postgres" ()
+      | None -> Lwt_PGOCaml.connect ~database:"ocamltw" ~user:"postgres" ()
 
 
 (* Tables (we don't create them here) *)
@@ -70,6 +70,16 @@ let articles_of_theme theme =
               art_ in $article$ ;
               cat_ in $category$ ;
               cat_.theme = $string:theme$ ;
+              cat_.id = art_.category ; >>)
+
+let articles_of_chapter theme chapter =
+  get_db () >>= (fun dbh ->
+    Lwt_Query.view dbh
+    <:view< { id = art_.id } |
+              art_ in $article$ ;
+              cat_ in $category$ ;
+              cat_.theme = $string:theme$ ;
+              cat_.chapter = $string:chapter$ ;
               cat_.id = art_.category ; >>)
 
 let find name = 

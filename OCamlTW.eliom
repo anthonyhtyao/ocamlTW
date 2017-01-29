@@ -39,6 +39,9 @@ let article_service =
            Eliom_parameter.(suffix (string "ar_class" ** string "ar_title")))
     ()
 
+
+(* Navbar *)
+
 let navbar () =
   nav ~a:[a_class ["navbar"; "navbar-default"]] 
   [
@@ -52,10 +55,10 @@ let navbar () =
           [
             li [pcdata "OCAML"];
             li [img ~alt:("Ocaml Logo")
-                ~src:(make_uri ~service:(Eliom_service.static_dir ()) ["fig";"OCaml.png"])
-                ~a:[a_width 25]
-                ()
-            ]
+                ~src:(make_uri ~service:(Eliom_service.static_dir ()) 
+                      ["fig";"OCaml.png"])
+                ~a:[a_width 25] ()
+                ]
           ]
         ] ();
       ];
@@ -90,8 +93,8 @@ let skeleton title_name body_content =
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
                           ["css";"OCamlTW.css"]) ();])
       (body (navbar()::
-              [div ~a:[a_class ["col-md-8";"col-md-offset-2";"content"]] body_content]@
-                footer ())))
+              [div ~a:[a_class ["col-md-8";"col-md-offset-2";"content"]] 
+               body_content] @ footer ())))
 
 let test () =
     div ~a:[a_class ["col-md-6"]]
@@ -113,8 +116,6 @@ let () =
         (Printf.sprintf "Hello")): unit)];
       let%lwt b = check_pwd "hello" "use" in
       let%lwt b2 = check_pwd "heddllo" "use" in
-      let%lwt row = find_pwd "hooo" in
-      let pwd = Sql.get row#pwd in
       skeleton 
         "OCamlTW"
         [
@@ -122,7 +123,6 @@ let () =
          h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
          p [pcdata ((if b then "hi" else "qq")^(if b2 then "1" else "2"))];
-         p [pcdata pwd];
          ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
              li [a ~service:related_service [pcdata "related"] ()]]]);
 
