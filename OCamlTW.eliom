@@ -4,7 +4,9 @@
     open Html.D
     open Database
 ]
-
+[%%client
+  let () = Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
+]
 
 module OCamlTW_app =
   Eliom_registration.App (struct
@@ -91,7 +93,11 @@ let skeleton title_name body_content =
         [css_link ~uri:(make_uri (Eliom_service.static_dir ())
                           ["css";"bootstrap.min.css"]) ();
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
-                          ["css";"OCamlTW.css"]) ();])
+                          ["css";"OCamlTW.css"]) ();
+         css_link ~uri:(make_uri (Eliom_service.static_dir ())
+                          ["css";"default.css"]) ();
+         js_script ~uri:(make_uri (Eliom_service.static_dir ())
+                          ["js";"highlight.pack.js"]) ();])
       (body (navbar()::
               [div ~a:[a_class ["col-md-8";"col-md-offset-2";"content"]] 
                body_content] @ footer ())))
@@ -105,6 +111,12 @@ let test () =
     ]
 
 
+let code () = 
+    pre
+    [
+      code
+      [pcdata "let x = 10 in"]
+    ]
 (* Register services *)
 
 let () =
@@ -122,6 +134,7 @@ let () =
          h1 ~a:[a_class ["test"]] [pcdata "Welcome to OcamlTW!"];
          h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
+         code ();
          p [pcdata ((if b then "hi" else "qq")^(if b2 then "1" else "2"))];
          ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
              li [a ~service:related_service [pcdata "related"] ()]]]);
