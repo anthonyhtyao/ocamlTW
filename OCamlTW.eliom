@@ -7,8 +7,9 @@
 
 
 [%%client 
-let cge() = Js.Unsafe.eval_string "$(\"p\").html(\"youpi!\")"
-let he() = (Dom_html.getElementById "divv") ##.innerHTML := (Js.string "youpi!")]
+  let he test = (Dom_html.getElementById "divv") ##.innerHTML := (Js.string test)
+  let showContent content = (Dom_html.getElementById "content") ##.innerHTML := (Js.string content)
+]
 
 
 module OCamlTW_app =
@@ -135,8 +136,8 @@ let () =
     (fun () () ->
       ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Hello")): unit)];
+      ignore [%client (he "coucouccc<br/>123456":unit)] ;
       let _ = [%client (color_syntax():unit)] in
-      let _ = [%client (he():unit)] in
       let%lwt b = check_pwd "hello" "use" in
       let%lwt b2 = check_pwd "heddllo" "use" in
       skeleton 
@@ -183,12 +184,14 @@ let () =
     (fun (ar_theme,ar_slg) () ->
       (*ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Meow Meow")): unit)];*)
-      let _ = [%client (cge():unit)] in
+      let%lwt ar = find_article_slg ar_slg in
+      let content = Sql.get ar#content in
+      ignore [%client (showContent ~%content:unit)] ;
       let%lwt ar = find_article_slg ar_slg in
       skeleton
         (Sql.get ar#title)
         [h1 [pcdata (Sql.get ar#title)];
-         p [pcdata (Sql.get ar#content) ];
+         div ~a:[a_id "content"][];
          p [a ~service:main_service [pcdata "home"] ()]])
 
 (*let%client _ = Eliom_lib.alert "Hello!"*)
