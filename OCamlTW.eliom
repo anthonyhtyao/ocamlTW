@@ -5,6 +5,12 @@
     open Database
 ]
 
+
+[%%client 
+let cge() = Js.Unsafe.eval_string "$(\"p\").html(\"youpi!\")"
+let he() = (Dom_html.getElementById "divv") ##.innerHTML := (Js.string "youpi!")]
+
+
 module OCamlTW_app =
   Eliom_registration.App (struct
     let application_name = "OCamlTW"
@@ -94,7 +100,9 @@ let skeleton title_name body_content =
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
                           ["css";"default.css"]) ();
          js_script ~uri:(make_uri (Eliom_service.static_dir ())
-                          ["js";"highlight.pack.js"]) ();])
+                          ["js";"highlight.pack.js"]) ();
+         js_script ~uri:(make_uri (Eliom_service.static_dir ())
+                          ["js";"jquery.min.js"]) (); ])
       (body (navbar()::
               [div ~a:[a_class ["col-md-8";"col-md-offset-2";"content"]] 
                body_content] @ footer ())))
@@ -128,6 +136,7 @@ let () =
       ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Hello")): unit)];
       let _ = [%client (color_syntax():unit)] in
+      let _ = [%client (he():unit)] in
       let%lwt b = check_pwd "hello" "use" in
       let%lwt b2 = check_pwd "heddllo" "use" in
       skeleton 
@@ -137,6 +146,7 @@ let () =
          h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
          code ();
+         div ~a:[a_id "divv"] [] ;
          p [pcdata ((if b then "hi" else "qq")^(if b2 then "1" else "2"))];
          ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
              li [a ~service:related_service [pcdata "related"] ()]]]);
@@ -161,7 +171,7 @@ let () =
                          [pcdata (Sql.get ar#title)] 
                          ("related-articles", (Sql.get ar#slg));
                        p [pcdata (Sql.get ar#abstract)];
-                       a ~service:article_service 
+                       a ~service:article_service
                          [pcdata "read more"]
                          ("related-articles", (Sql.get ar#slg));]))
         related_ars in
@@ -173,6 +183,7 @@ let () =
     (fun (ar_theme,ar_slg) () ->
       (*ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Meow Meow")): unit)];*)
+      let _ = [%client (cge():unit)] in
       let%lwt ar = find_article_slg ar_slg in
       skeleton
         (Sql.get ar#title)
