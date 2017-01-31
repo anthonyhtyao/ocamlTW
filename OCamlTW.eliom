@@ -155,9 +155,27 @@ let () =
   OCamlTW_app.register
     ~service:ocamltuto_service
     (fun () () ->
-      skeleton "OCaml Tuto"
-        [p [a ~service:article_service [pcdata "Why OCaml?"] 
-            ("OCaml-Tuto","why-ocaml")]]);
+      let%lwt chps = chapters_of_theme "OCamlTuto" in
+      let section_of_chap chap_id =
+        let%lwt ar_ids = articles_of_chapter chap_id in
+        let ars = List.map 
+          (fun ar_id -> find_article_id (Sql.get ar_id#id)) ar_ids in
+        Lwt_list.map_p 
+          (fun ar -> 
+            let%lwt ar = ar in Lwt.return (
+            li [a ~service:article_service
+                  [pcdata (Sql.get ar#title)]
+                  ("ocaml-tuto", (Sql.get ar#slg))])) ars 
+      in
+      let body = Lwt_list.map_p
+        (fun chap -> 
+          let%lwt sec = section_of_chap (Sql.get chap#id) in
+          Lwt.return 
+            (li [section[h2[pcdata (Sql.get chap#chapter)]; ul sec]])) chps
+      in
+      let%lwt body = body in
+      skeleton "OCaml Tuto" 
+        [h1 [pcdata "OCaml Tutorial"]; ol body]);
         
   OCamlTW_app.register
     ~service:related_service
@@ -166,7 +184,7 @@ let () =
       let related_ids = List.map 
         (fun sqlid -> Sql.get sqlid#id) related_ids in
       let related_ars = List.map find_article_id related_ids in
-      let body = Lwt_list.map_s
+      let body = Lwt_list.map_p
         (fun ar -> let%lwt ar = ar in Lwt.return (
                    li [a ~service:article_service 
                          [pcdata (Sql.get ar#title)] 
@@ -174,7 +192,8 @@ let () =
                        p [pcdata (Sql.get ar#abstract)];
                        a ~service:article_service
                          [pcdata "read more"]
-                         ("related-articles", (Sql.get ar#slg));]))
+                         ("related-articles", (Sql.get ar#slg));
+                       hr();]))
         related_ars in
       let%lwt body = body in
       skeleton "related" [ul body]);
@@ -187,11 +206,12 @@ let () =
       let%lwt ar = find_article_slg ar_slg in
       let content = Sql.get ar#content in
       ignore [%client (showContent ~%content:unit)] ;
-      let%lwt ar = find_article_slg ar_slg in
+      ignore [%client (color_syntax():unit)] ;
       skeleton
         (Sql.get ar#title)
-        [h1 [pcdata (Sql.get ar#title)];
-         div ~a:[a_id "content"][];
-         p [a ~service:main_service [pcdata "home"] ()]])
+          [Eliom_content.Html.D.article
+            [h1 [pcdata (Sql.get ar#title)];
+            div ~a:[a_id "content"][];
+            p [a ~service:main_service [pcdata "home"] ()]]])
 
 (*let%client _ = Eliom_lib.alert "Hello!"*)
