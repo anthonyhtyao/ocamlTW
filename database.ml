@@ -1,7 +1,6 @@
 
 open Lwt
 
-
 (* madaque with Lwt *)
 
 module Lwt_thread = struct
@@ -29,8 +28,11 @@ let category = <:table< category (
   theme text NOT NULL,
   chapter text NOT NULL)>>
 
+(* TODO : change created and lastmodified's type to timestamptz*)
 let article = <:table< article (
   id integer NOT NULL,
+  created text NOT NULL,
+  lastmodified text NOT NULL,
   category integer NOT NULL,
   title text NOT NULL,
   abstract text NOT NULL,
@@ -55,7 +57,7 @@ let chapters_of_theme theme =
 let find_article_slg slg = 
   get_db () >>= (fun dbh ->
     Lwt_Query.view_one dbh
-    <:view< { title = art_.title ;  content = art_.content } |
+    <:view< { title = art_.title ; created = art_.created; lastmodified = art_.lastmodified; content = art_.content } |
               art_ in $article$ ; 
               art_.slg = $string:slg$ ; >>)
 
@@ -64,6 +66,8 @@ let find_article_id id =
   get_db () >>= (fun dbh ->
     Lwt_Query.view_one dbh
     <:view< { title = art_.title ;
+              created = art_.created;
+              lastmodified = art_.lastmodified;
               abstract = art_.abstract;
               content = art_.content ; 
               slg = art_.slg } |

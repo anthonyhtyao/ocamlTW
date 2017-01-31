@@ -211,6 +211,8 @@ let () =
         (Sql.get ar#title)
           [Eliom_content.Html.D.article
             [h1 [pcdata (Sql.get ar#title)];
+             p [pcdata ("Created at "^(Sql.get ar#created))];
+             p [pcdata ("Last modified at "^(Sql.get ar#lastmodified))];
             div ~a:[a_id "content"][];
             p [a ~service:main_service [pcdata "home"] ()]]])
 
