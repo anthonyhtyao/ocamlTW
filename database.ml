@@ -45,6 +45,13 @@ let table = <:table< users (
 
 (* Interact with the database *)
 
+let chapters_of_theme theme =
+  get_db () >>= (fun dbh ->
+    Lwt_Query.view dbh
+    <:view< { id = cat_.id ; chapter = cat_.chapter } |
+              cat_ in $category$ ;
+              cat_.theme = $string:theme$; >>)
+
 let find_article_slg slg = 
   get_db () >>= (fun dbh ->
     Lwt_Query.view_one dbh
@@ -72,15 +79,12 @@ let articles_of_theme theme =
               cat_.theme = $string:theme$ ;
               cat_.id = art_.category ; >>)
 
-let articles_of_chapter theme chapter =
+let articles_of_chapter chapter_id =
   get_db () >>= (fun dbh ->
     Lwt_Query.view dbh
     <:view< { id = art_.id } |
               art_ in $article$ ;
-              cat_ in $category$ ;
-              cat_.theme = $string:theme$ ;
-              cat_.chapter = $string:chapter$ ;
-              cat_.id = art_.category ; >>)
+              art_.id = $int32:chapter_id$ ; >>)
 
 let find name = 
   get_db () >>= (fun dbh ->
