@@ -28,10 +28,16 @@ let main_service =
 
 let ocamltuto_service =
   Eliom_service.create
-    ~path:(Eliom_service.Path ["OCaml-tuto"])
+    ~path:(Eliom_service.Path ["ocaml-tuto"])
     ~meth:(Eliom_service.Get Eliom_parameter.unit)
     ()
     
+let chapter_service = 
+  Eliom_service.create
+    ~path:(Eliom_service.Path ["OCaml-tuto"])
+    ~meth:(Eliom_service.Get Eliom_parameter.(suffix (string "ar_slg")))
+    ()
+
 let related_service =
   Eliom_service.create
     ~path:(Eliom_service.Path ["related-articles"])
@@ -42,7 +48,7 @@ let article_service =
   Eliom_service.create
     ~path:(Eliom_service.Path [])
     ~meth:(Eliom_service.Get 
-           Eliom_parameter.(suffix (string "ar_class" ** string "ar_title")))
+           Eliom_parameter.(suffix (string "ar_theme" ** string "ar_slg")))
     ()
 
 
@@ -127,6 +133,19 @@ let code () =
 let%client color_syntax = 
   Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
 
+
+let section_of_chap chap_id ar_id =
+  let%lwt ar_ids = articles_of_chapter chap_id ar_id in
+  let ars = List.map 
+    (fun ar_id -> find_article_id (Sql.get ar_id#id)) ar_ids in
+  Lwt_list.map_p 
+    (fun ar -> 
+      let%lwt ar = ar in Lwt.return (
+      li [a ~service:article_service
+            [pcdata (Sql.get ar#title)]
+            ("ocaml-tuto", (Sql.get ar#slg))])) ars 
+
+
 (* Register services *)
 
 let () =
@@ -156,27 +175,37 @@ let () =
     ~service:ocamltuto_service
     (fun () () ->
       let%lwt chps = chapters_of_theme "OCamlTuto" in
-      let section_of_chap chap_id =
-        let%lwt ar_ids = articles_of_chapter chap_id in
-        let ars = List.map 
-          (fun ar_id -> find_article_id (Sql.get ar_id#id)) ar_ids in
-        Lwt_list.map_p 
-          (fun ar -> 
-            let%lwt ar = ar in Lwt.return (
-            li [a ~service:article_service
-                  [pcdata (Sql.get ar#title)]
-                  ("ocaml-tuto", (Sql.get ar#slg))])) ars 
-      in
       let body = Lwt_list.map_p
         (fun chap -> 
-          let%lwt sec = section_of_chap (Sql.get chap#id) in
+          let chap_ar_id = match Sql.getn chap#article with
+            | Some n -> n
+            | None -> assert false in
+          let%lwt chap_ar = find_article_id chap_ar_id in
+          let chap_ar_slg = Sql.get chap_ar#slg in
+          let%lwt sec = section_of_chap (Sql.get chap#id) chap_ar_id in
           Lwt.return 
-            (li [section[h2[pcdata (Sql.get chap#chapter)]; ul sec]])) chps
+            (li [section [h2 [ 
+              a ~service:chapter_service
+                [pcdata (Sql.get chap#chapter)]
+                chap_ar_slg]; ul sec]])) chps
       in
       let%lwt body = body in
       skeleton "OCaml Tuto" 
         [h1 [pcdata "OCaml Tutorial"]; ol body]);
-        
+      
+  OCamlTW_app.register
+    ~service:chapter_service
+    (fun ar_slg () ->
+      let%lwt ar = find_article_slg ar_slg in
+      let content = Sql.get ar#content in
+      let%lwt sec = section_of_chap (Sql.get ar#category) (Sql.get ar#id) in
+      ignore [%client (showContent ~%content:unit)] ;
+      ignore [%client (color_syntax():unit)] ;
+      skeleton (Sql.get ar#title)
+        [Eliom_content.Html.D.article
+          [h1 [pcdata (Sql.get ar#title)]];
+           div ~a:[a_id "content"] []; ul sec;]);
+
   OCamlTW_app.register
     ~service:related_service
     (fun () () ->

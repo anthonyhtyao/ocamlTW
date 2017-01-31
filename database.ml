@@ -24,16 +24,17 @@ let get_db : unit -> unit Lwt_PGOCaml.t Lwt.t =
 (* Tables (we don't create them here) *)
 
 let category = <:table< category (
-  id integer NOT NULL,
+  id bigint NOT NULL,
   theme text NOT NULL,
-  chapter text NOT NULL)>>
+  chapter text NOT NULL,
+  article bigint)>>
 
 (* TODO : change created and lastmodified's type to timestamptz*)
 let article = <:table< article (
-  id integer NOT NULL,
+  id bigint NOT NULL,
   created text NOT NULL,
   lastmodified text NOT NULL,
-  category integer NOT NULL,
+  category bigint NOT NULL,
   title text NOT NULL,
   abstract text NOT NULL,
   content text NOT NULL,
@@ -50,18 +51,22 @@ let table = <:table< users (
 let chapters_of_theme theme =
   get_db () >>= (fun dbh ->
     Lwt_Query.view dbh
-    <:view< { id = cat_.id ; chapter = cat_.chapter } |
+    <:view< { id = cat_.id ; 
+              chapter = cat_.chapter ;
+              article = cat_.article } |
               cat_ in $category$ ;
               cat_.theme = $string:theme$; >>)
 
 let find_article_slg slg = 
   get_db () >>= (fun dbh ->
     Lwt_Query.view_one dbh
-    <:view< { title = art_.title ; 
-              created = art_.created; 
+    <:view< { id = art_.id ;
+              created = art_.created;
               lastmodified = art_.lastmodified; 
-              content = art_.content } |
-              art_ in $article$ ; 
+              title = art_.title ;  
+              content = art_.content ;
+              category = art_.category } |
+              art_ in $article$ ;
               art_.slg = $string:slg$ ; >>)
 
 
@@ -75,7 +80,7 @@ let find_article_id id =
               content = art_.content ; 
               slg = art_.slg } |
               art_ in $article$ ; 
-              art_.id = $int32:id$ ; >>)
+              art_.id = $int64:id$ ; >>)
 
 let articles_of_theme theme =
   get_db () >>= (fun dbh ->
@@ -84,14 +89,15 @@ let articles_of_theme theme =
               art_ in $article$ ;
               cat_ in $category$ ;
               cat_.theme = $string:theme$ ;
-              cat_.id = art_.category ; >>)
+              cat_.id = art_.category ;>>)
 
-let articles_of_chapter chapter_id =
+let articles_of_chapter chapter_id ar_id =
   get_db () >>= (fun dbh ->
     Lwt_Query.view dbh
     <:view< { id = art_.id } |
               art_ in $article$ ;
-              art_.id = $int32:chapter_id$ ; >>)
+              art_.category = $int64:chapter_id$ ; 
+              art_.id <> $int64:ar_id$ ;>>)
 
 let find name = 
   get_db () >>= (fun dbh ->
