@@ -57,7 +57,10 @@ let chapters_of_theme theme =
 let find_article_slg slg = 
   get_db () >>= (fun dbh ->
     Lwt_Query.view_one dbh
-    <:view< { title = art_.title ; created = art_.created; lastmodified = art_.lastmodified; content = art_.content } |
+    <:view< { title = art_.title ; 
+              created = art_.created; 
+              lastmodified = art_.lastmodified; 
+              content = art_.content } |
               art_ in $article$ ; 
               art_.slg = $string:slg$ ; >>)
 
