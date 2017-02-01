@@ -11,7 +11,6 @@
   let showContent content = (Dom_html.getElementById "content") ##.innerHTML := (Js.string content)
 ]
 
-
 module OCamlTW_app =
   Eliom_registration.App (struct
     let application_name = "OCamlTW"
@@ -51,7 +50,6 @@ let article_service =
            Eliom_parameter.(suffix (string "ar_theme" ** string "ar_slg")))
     ()
 
-
 (* Navbar *)
 
 let navbar () =
@@ -84,6 +82,17 @@ let navbar () =
       ]
     ]
   ]
+
+type 'a service = {mutable service:'a;title:string}
+
+let breadcrumbs services =
+    let rec aux lst = function
+      | [] -> lst
+      | [t] -> lst@[li ~a:[a_class ["active"]][pcdata t.title]]
+      | t::q -> aux (lst@[li [a ~service:t.service [pcdata t.title]()]]) q
+    in
+    ol ~a:[a_class ["breadcrumb"]]
+      (aux [] services)
 
 let footer () =
   [
@@ -191,7 +200,10 @@ let () =
       in
       let%lwt body = body in
       skeleton "OCaml Tuto" 
-        [h1 [pcdata "OCaml Tutorial"]; ol body]);
+        [
+          breadcrumbs [{service=main_service;title="Home"};{service=ocamltuto_service;title="OcamlTuto"}];
+          h1 [pcdata "OCaml Tutorial"];
+          ol body]);
       
   OCamlTW_app.register
     ~service:chapter_service
@@ -225,7 +237,10 @@ let () =
                        hr();]))
         related_ars in
       let%lwt body = body in
-      skeleton "related" [ul body]);
+      skeleton "related" 
+        [
+          breadcrumbs [{service=main_service;title="Home"};{service=related_service;title="related"}];
+          ul body]);
 
   OCamlTW_app.register
     ~service:article_service
@@ -239,7 +254,9 @@ let () =
       skeleton
         (Sql.get ar#title)
           [Eliom_content.Html.D.article
-            [h1 [pcdata (Sql.get ar#title)];
+            [
+             breadcrumbs [{service=main_service;title="Home"};{service=related_service;title=ar_theme}];
+             h1 [pcdata (Sql.get ar#title)];
              p [pcdata ("Created at "^(Sql.get ar#created))];
              p [pcdata ("Last modified at "^(Sql.get ar#lastmodified))];
             div ~a:[a_id "content"][];
