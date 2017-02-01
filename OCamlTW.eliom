@@ -249,13 +249,19 @@ let () =
         (Printf.sprintf "Meow Meow")): unit)];*)
       let%lwt ar = find_article_slg ar_slg in
       let content = Sql.get ar#content in
+      let tmp = function
+        | "related-articles" -> related_service
+        | "ocamltuto" -> ocamltuto_service
+        | _ -> main_service
+      in
+      let rel = tmp ar_theme in
       ignore [%client (showContent ~%content:unit)] ;
       ignore [%client (color_syntax():unit)] ;
       skeleton
         (Sql.get ar#title)
           [Eliom_content.Html.D.article
             [
-             breadcrumbs [{service=main_service;title="Home"};{service=related_service;title=ar_theme}];
+             breadcrumbs [{service=main_service;title="Home"};{service=rel;title=ar_theme};{service=related_service;title=(Sql.get ar#title)}];
              h1 [pcdata (Sql.get ar#title)];
              p [pcdata ("Created at "^(Sql.get ar#created))];
              p [pcdata ("Last modified at "^(Sql.get ar#lastmodified))];
