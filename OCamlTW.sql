@@ -21,7 +21,7 @@ CREATE TABLE IF NOT EXISTS article(
   title text NOT NULL,
   abstract text NOT NULL,
   content text NOT NULL,
-  slg text NOT NULL);
+  slg text unique NOT NULL);
 
 -- Change last modified for all modified rows
 CREATE OR REPLACE FUNCTION update_lastmodified_column()	
