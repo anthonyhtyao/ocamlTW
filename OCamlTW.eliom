@@ -143,11 +143,11 @@ let code () =
 let%client color_syntax = 
   Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
 
-(* TODO :
- * 1. Assert ar_id == chapter.article where chapter.id == chap_id
- *  
- * *)
 let section_of_chap chap_id ar_id =
+  let%lwt cat = detail_of_category chap_id in
+  let _ = match (Sql.getn cat#article) with
+    | Some n -> assert (n = ar_id)
+    | None -> assert false in
   let%lwt ar_ids = articles_of_chapter chap_id ar_id in
   let ars = List.map 
     (fun ar_id -> find_article_id (Sql.get ar_id#id)) ar_ids in
@@ -224,9 +224,7 @@ let () =
         [Eliom_content.Html.D.article
           [h1 [pcdata (Sql.get ar#title)]];
            div ~a:[a_id "content"] []; ul sec;]);
-(* TODO :
- * Assert article is in related
- * *)
+
   OCamlTW_app.register
     ~service:related_service
     (fun () () ->
