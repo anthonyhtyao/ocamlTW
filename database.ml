@@ -26,8 +26,13 @@ let get_db : unit -> unit Lwt_PGOCaml.t Lwt.t =
 let category = <:table< category (
   id bigint NOT NULL,
   theme text NOT NULL,
-  chapter text NOT NULL,
-  article bigint)>>
+  theme_label text NOT NULL,
+  chapter text,
+  chapter_label text,
+  article bigint,
+  previous bigint,
+  next bigint
+  )>>
 
 (* TODO : change created and lastmodified's type to timestamptz*)
 let article = <:table< article (
@@ -38,7 +43,10 @@ let article = <:table< article (
   title text NOT NULL,
   abstract text NOT NULL,
   content text NOT NULL,
-  slg text NOT NULL)>>
+  slg text NOT NULL,
+  previous bigint,
+  next bigint
+  )>>
 
 let table = <:table< users (
   login text NOT NULL,
@@ -57,6 +65,26 @@ let chapters_of_theme theme =
               cat_ in $category$ ;
               cat_.theme = $string:theme$; >>)
 
+let find_light_article_slg slg = 
+  get_db () >>= (fun dbh ->
+    Lwt_Query.view_one dbh
+    <:view< { id = art_.id ;
+              created = art_.created;
+              lastmodified = art_.lastmodified; 
+              title = art_.title ;
+              category = art_.category } |
+              art_ in $article$ ;
+              art_.slg = $string:slg$ ; >>)
+
+let find_light_article_id id = 
+  get_db () >>= (fun dbh ->
+    Lwt_Query.view_one dbh
+    <:view< { title = art_.title ;
+              abstract = art_.abstract;
+              slg = art_.slg } |
+              art_ in $article$ ; 
+              art_.id = $int64:id$ ; >>)
+
 let find_article_slg slg = 
   get_db () >>= (fun dbh ->
     Lwt_Query.view_one dbh
@@ -65,10 +93,11 @@ let find_article_slg slg =
               lastmodified = art_.lastmodified; 
               title = art_.title ;  
               content = art_.content ;
-              category = art_.category } |
+              category = art_.category;
+              previous = art_.previous; 
+              next = art_.next } |
               art_ in $article$ ;
               art_.slg = $string:slg$ ; >>)
-
 
 let find_article_id id = 
   get_db () >>= (fun dbh ->
@@ -78,6 +107,8 @@ let find_article_id id =
               lastmodified = art_.lastmodified;
               abstract = art_.abstract;
               content = art_.content ; 
+              previous = art_.previous ; 
+              next = art_.next ; 
               slg = art_.slg } |
               art_ in $article$ ; 
               art_.id = $int64:id$ ; >>)

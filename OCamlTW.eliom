@@ -18,7 +18,7 @@ module OCamlTW_app =
   end)
 
 (* Services *)
-
+(* TODO : Create a redirection *)
 let main_service =
   Eliom_service.create
     ~path:(Eliom_service.Path [])
@@ -142,7 +142,10 @@ let code () =
 let%client color_syntax = 
   Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
 
-
+(* TODO :
+ * 1. Assert ar_id == chapter.article where chapter.id == chap_id
+ *  
+ * *)
 let section_of_chap chap_id ar_id =
   let%lwt ar_ids = articles_of_chapter chap_id ar_id in
   let ars = List.map 
@@ -217,7 +220,9 @@ let () =
         [Eliom_content.Html.D.article
           [h1 [pcdata (Sql.get ar#title)]];
            div ~a:[a_id "content"] []; ul sec;]);
-
+(* TODO :
+ * Assert article is in related
+ * *)
   OCamlTW_app.register
     ~service:related_service
     (fun () () ->
