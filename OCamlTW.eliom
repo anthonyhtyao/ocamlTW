@@ -139,6 +139,7 @@ let code () =
       [pcdata "let x = 10 in"]
     ]
 
+
 let%client color_syntax = 
   Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
 
@@ -186,26 +187,29 @@ let () =
   OCamlTW_app.register
     ~service:ocamltuto_service
     (fun () () ->
-      let%lwt chps = chapters_of_theme "OCamlTuto" in
+      let%lwt chps = chapters_of_theme 1L in
       let body = Lwt_list.map_p
         (fun chap -> 
           let chap_ar_id = match Sql.getn chap#article with
             | Some n -> n
             | None -> assert false in
-          let%lwt chap_ar = find_article_id chap_ar_id in
+          let chap_chapter = match Sql.getn chap#label with
+            | Some n -> n
+            | None -> assert false in
+          let%lwt chap_ar = find_light_article_id chap_ar_id in
           let chap_ar_slg = Sql.get chap_ar#slg in
           let%lwt sec = section_of_chap (Sql.get chap#id) chap_ar_id in
           Lwt.return 
             (li [section [h2 [ 
               a ~service:chapter_service
-                [pcdata (Sql.get chap#chapter)]
+                [pcdata chap_chapter]
                 chap_ar_slg]; ul sec]])) chps
       in
       let%lwt body = body in
       skeleton "OCaml Tuto" 
         [
-          breadcrumbs [{service=main_service;title="Home"};{service=ocamltuto_service;title="OcamlTuto"}];
-          h1 [pcdata "OCaml Tutorial"];
+          breadcrumbs [{service=main_service;title="Home"};{service=ocamltuto_service;title="Ocaml Tuto"}];
+          h1 [pcdata "OCaml Tuto"];
           ol body]);
       
   OCamlTW_app.register
@@ -226,10 +230,10 @@ let () =
   OCamlTW_app.register
     ~service:related_service
     (fun () () ->
-      let%lwt related_ids = articles_of_theme "Related" in
+      let%lwt related_ids = articles_of_theme 2L in
       let related_ids = List.map 
         (fun sqlid -> Sql.get sqlid#id) related_ids in
-      let related_ars = List.map find_article_id related_ids in
+      let related_ars = List.map find_light_article_id related_ids in
       let body = Lwt_list.map_p
         (fun ar -> let%lwt ar = ar in Lwt.return (
                    li [a ~service:article_service 
@@ -252,7 +256,10 @@ let () =
     (fun (ar_theme,ar_slg) () ->
       (*ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Meow Meow")): unit)];*)
+      let%lwt theme = detail_of_theme_title ar_theme in
       let%lwt ar = find_article_slg ar_slg in
+      let%lwt cat = detail_of_category (Sql.get ar#category) in
+      ignore [ assert ((Sql.get theme#id) = (Sql.get cat#theme))];
       let content = Sql.get ar#content in
       let tmp = function
         | "related-articles" -> related_service
@@ -266,7 +273,7 @@ let () =
         (Sql.get ar#title)
           [Eliom_content.Html.D.article
             [
-             breadcrumbs [{service=main_service;title="Home"};{service=rel;title=ar_theme};{service=related_service;title=(Sql.get ar#title)}];
+             breadcrumbs [{service=main_service;title="Home"};{service=rel;title=(Sql.get theme#label)};{service=related_service;title=(Sql.get ar#title)}];
              h1 [pcdata (Sql.get ar#title)];
              p [pcdata ("Created at "^(Sql.get ar#created))];
              p [pcdata ("Last modified at "^(Sql.get ar#lastmodified))];

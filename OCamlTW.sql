@@ -7,12 +7,17 @@ CREATE TABLE IF NOT EXISTS users(
   password text NOT NULL
 );
 
+CREATE TABLE IF NOT EXISTS theme(
+    id serial primary key NOT NULL,
+    title text NOT NULL,
+    label text NOT NULL
+);
+
 CREATE TABLE IF NOT EXISTS category(
     id serial primary key NOT NULL,
-    theme text NOT NULL,
-    theme_label text NOT NULL,
-    chapter text,
-    chapter_label text,
+    theme int references theme(id),
+    title text,
+    label text,
     article int,
     previous int references category(id),
     next int references category(id)
@@ -42,10 +47,16 @@ $$ language 'plpgsql';
 
 CREATE TRIGGER update_article_modtime BEFORE UPDATE ON article FOR EACH ROW EXECUTE PROCEDURE  update_lastmodified_column();
 
-INSERT INTO category (id,theme,theme_label,chapter,chapter_label,article)
+
+INSERT INTO theme (id,title,label)
   VALUES
-  (1, 'ocamltuto','OCaml 教學', 'OCaml core language','OCaml 入門', 1),
-  (2, 'Related','相關文章',null,null,null);
+  (1, 'ocaml-tuto','OCaml 教學'),
+  (2, 'related-articles','相關文章');
+
+INSERT INTO category (id,theme,title,label,article)
+  VALUES
+  (1, 1, 'ocaml-core-language','OCaml 入門', 1),
+  (2, 2, null,null,null);
 
 INSERT INTO article (id,category,title,abstract,content,slg,previous,next)
   VALUES
