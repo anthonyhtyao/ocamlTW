@@ -42,8 +42,8 @@ let category = <:table< category (
 (* TODO : change created and lastmodified's type to timestamptz*)
 let article = <:table< article (
   id bigint NOT NULL,
-  created text NOT NULL,
-  lastmodified text NOT NULL,
+  created timestamp NOT NULL,
+  lastmodified timestamp NOT NULL,
   category bigint NOT NULL,
   title text NOT NULL,
   abstract text NOT NULL,

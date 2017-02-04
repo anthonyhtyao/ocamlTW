@@ -2,6 +2,7 @@
     open Eliom_lib
     open Eliom_content
     open Html.D
+    open CalendarLib.Printer.Calendar
     open Database
 ]
 
@@ -263,8 +264,9 @@ let () =
         Lwt.return
           (Eliom_content.Html.D.article [
             h1 [pcdata (Sql.get ar#title)];
-            p [pcdata ("Created at "^(Sql.get ar#created))];
-            p [pcdata ("Last modified at "^(Sql.get ar#lastmodified))];
+            p [pcdata ("Created at "^(to_string (Sql.get ar#created)))];
+            p [pcdata 
+                ("Last modified at "^(to_string(Sql.get ar#lastmodified)))];
             div ~a:[a_id "content"][];
             p [a ~service:main_service [pcdata "home"] ()]])
       in
