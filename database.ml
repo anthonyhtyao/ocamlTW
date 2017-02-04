@@ -60,6 +60,7 @@ let table = <:table< users (
 
 
 (* Interact with the database *)
+
 let detail_of_theme_id id =
   get_db () >>= (fun dbh ->
     Lwt_Query.view_one dbh
@@ -75,9 +76,12 @@ let detail_of_theme_title title =
 let detail_of_category id =
   get_db () >>= (fun dbh ->
     Lwt_Query.view_one dbh
-    <:view< { theme = cat_.theme; title = cat_.title ; label = cat_.label; article = cat_.article} | 
-              cat_ in $category$; cat_.id = $int64:id$; >>)
-
+    <:view< { theme = cat_.theme ; 
+              title = cat_.title ; 
+              label = cat_.label ; 
+              article = cat_.article } | 
+              cat_ in $category$; 
+              cat_.id = $int64:id$; >>)
 
 let chapters_of_theme theme_id =
   get_db () >>= (fun dbh ->

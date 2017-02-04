@@ -60,7 +60,7 @@ INSERT INTO category (id,theme,title,label,article)
 
 INSERT INTO article (id,category,title,abstract,content,slg,previous,next)
   VALUES
-  (1, 1, 'OCaml core language', '', '從最核心的部份談起，包含基本的四則
+  (1, 1, 'OCaml 入門', '', '從最核心的部份談起，包含基本的四則
     運算、函數定義、以及型別的概念等等', 'ocaml-core-language',null,2),
   (2, 1, 'Why OCaml?', '', 'the article that explains the advantages
   of OCaml here', 'why-ocaml',1,null),

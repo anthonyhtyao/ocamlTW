@@ -18,7 +18,6 @@ module OCamlTW_app =
   end)
 
 (* Services *)
-(* TODO : Create a redirection *)
 let main_service =
   Eliom_service.create
     ~path:(Eliom_service.Path [])
@@ -27,14 +26,8 @@ let main_service =
 
 let ocamltuto_service =
   Eliom_service.create
-    ~path:(Eliom_service.Path ["ocaml-tuto"])
+    ~path:(Eliom_service.Path ["ocaml-tuto";""])
     ~meth:(Eliom_service.Get Eliom_parameter.unit)
-    ()
-    
-let chapter_service = 
-  Eliom_service.create
-    ~path:(Eliom_service.Path ["OCaml-tuto"])
-    ~meth:(Eliom_service.Get Eliom_parameter.(suffix (string "ar_slg")))
     ()
 
 let related_service =
@@ -83,16 +76,18 @@ let navbar () =
     ]
   ]
 
-type 'a service = {mutable service:'a;title:string}
-
 let breadcrumbs services =
-    let rec aux lst = function
-      | [] -> lst
-      | [t] -> lst@[li ~a:[a_class ["active"]][pcdata t.title]]
-      | t::q -> aux (lst@[li [a ~service:t.service [pcdata t.title]()]]) q
-    in
-    ol ~a:[a_class ["breadcrumb"]]
-      (aux [] services)
+  let rec aux lst = function
+    | [] -> lst
+    | [`Service_s (_, title)] | [`Service_ar (_, title, _, _)] -> 
+        lst @ [li ~a:[a_class ["active"]] [pcdata title]]
+    | `Service_s (service, title)::q ->
+        aux (lst @ [li [a ~service:service [pcdata title] ()]]) q
+    | `Service_ar (service, title, theme, slg)::q ->
+        aux (lst @ [li [a ~service:service [pcdata title] (theme, slg)]]) q
+
+  in
+  ol ~a:[a_class ["breadcrumb"]] (aux [] services)
 
 let footer () =
   [
@@ -123,25 +118,14 @@ let skeleton title_name body_content =
               [div ~a:[a_class ["col-md-8";"col-md-offset-2";"content"]] 
                body_content] @ footer ())))
 
-let test () =
-    div ~a:[a_class ["col-md-6"]]
-    [div ~a:[a_class ["panel";"panel-default"]]
-     [div ~a:[a_class ["panel-heading"]] [pcdata "This is title"];
-      div ~a:[a_class ["panel-body"]] [pcdata "This is content"];
-     ]
-    ]
-
 
 let code () = 
-    pre
-    [
-      code
-      [pcdata "let x = 10 in"]
-    ]
+    pre [code [pcdata "let x = 10 in"]]
 
 
 let%client color_syntax = 
   Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
+
 
 let section_of_chap chap_id ar_id =
   let%lwt cat = detail_of_category chap_id in
@@ -166,12 +150,10 @@ let () =
   OCamlTW_app.register
     ~service:main_service
     (fun () () ->
-      ignore [%client (Dom_html.window##alert (Js.string 
-        (Printf.sprintf "Hello")): unit)];
+      (*ignore [%client (Dom_html.window##alert (Js.string 
+        (Printf.sprintf "Hello")): unit)];*)
       ignore [%client (he "coucouccc<br/>123456":unit)] ;
       let _ = [%client (color_syntax():unit)] in
-      let%lwt b = check_pwd "hello" "use" in
-      let%lwt b2 = check_pwd "heddllo" "use" in
       skeleton 
         "OCamlTW"
         [
@@ -180,7 +162,6 @@ let () =
          h3 [pcdata "歡迎多多來參觀"];
          code ();
          div ~a:[a_id "divv"] [] ;
-         p [pcdata ((if b then "hi" else "qq")^(if b2 then "1" else "2"))];
          ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
              li [a ~service:related_service [pcdata "related"] ()]]]);
 
@@ -188,6 +169,10 @@ let () =
     ~service:ocamltuto_service
     (fun () () ->
       let%lwt chps = chapters_of_theme 1L in
+      let bdc =
+        breadcrumbs 
+        [ `Service_s (main_service, "Home") ;
+          `Service_s (ocamltuto_service, "OCaml 教學")] in
       let body = Lwt_list.map_p
         (fun chap -> 
           let chap_ar_id = match Sql.getn chap#article with
@@ -201,29 +186,12 @@ let () =
           let%lwt sec = section_of_chap (Sql.get chap#id) chap_ar_id in
           Lwt.return 
             (li [section [h2 [ 
-              a ~service:chapter_service
+              a ~service:article_service
                 [pcdata chap_chapter]
-                chap_ar_slg]; ul sec]])) chps
+                ("ocaml-tuto", chap_ar_slg)]; ul sec]])) chps
       in
       let%lwt body = body in
-      skeleton "OCaml Tuto" 
-        [
-          breadcrumbs [{service=main_service;title="Home"};{service=ocamltuto_service;title="Ocaml Tuto"}];
-          h1 [pcdata "OCaml Tuto"];
-          ol body]);
-      
-  OCamlTW_app.register
-    ~service:chapter_service
-    (fun ar_slg () ->
-      let%lwt ar = find_article_slg ar_slg in
-      let content = Sql.get ar#content in
-      let%lwt sec = section_of_chap (Sql.get ar#category) (Sql.get ar#id) in
-      ignore [%client (showContent ~%content:unit)] ;
-      ignore [%client (color_syntax():unit)] ;
-      skeleton (Sql.get ar#title)
-        [Eliom_content.Html.D.article
-          [h1 [pcdata (Sql.get ar#title)]];
-           div ~a:[a_id "content"] []; ul sec;]);
+      skeleton "OCaml Tuto" [bdc; h1 [pcdata "OCaml Tuto"]; ol body]);
 
   OCamlTW_app.register
     ~service:related_service
@@ -232,50 +200,76 @@ let () =
       let related_ids = List.map 
         (fun sqlid -> Sql.get sqlid#id) related_ids in
       let related_ars = List.map find_light_article_id related_ids in
+      let bdc = 
+        breadcrumbs
+        [ `Service_s(main_service, "Home");
+          `Service_s(related_service, "相關文章")] in
       let body = Lwt_list.map_p
-        (fun ar -> let%lwt ar = ar in Lwt.return (
-                   li [a ~service:article_service 
-                         [pcdata (Sql.get ar#title)] 
-                         ("related-articles", (Sql.get ar#slg));
-                       p [pcdata (Sql.get ar#abstract)];
-                       a ~service:article_service
-                         [pcdata "read more"]
-                         ("related-articles", (Sql.get ar#slg));
-                       hr();]))
+        (fun ar -> 
+          let%lwt ar = ar in Lwt.return (
+          li [a ~service:article_service 
+                [pcdata (Sql.get ar#title)] 
+                ("related-articles", (Sql.get ar#slg));
+              p [pcdata (Sql.get ar#abstract)];
+              a ~service:article_service
+                [pcdata "read more"]
+                ("related-articles", (Sql.get ar#slg));
+              hr();]))
         related_ars in
       let%lwt body = body in
-      skeleton "related" 
-        [
-          breadcrumbs [{service=main_service;title="Home"};{service=related_service;title="related"}];
-          ul body]);
+      skeleton "related" [bdc; ul body]);
 
   OCamlTW_app.register
     ~service:article_service
     (fun (ar_theme,ar_slg) () ->
-      (*ignore [%client (Dom_html.window##alert (Js.string 
-        (Printf.sprintf "Meow Meow")): unit)];*)
       let%lwt theme = detail_of_theme_title ar_theme in
       let%lwt ar = find_article_slg ar_slg in
       let%lwt cat = detail_of_category (Sql.get ar#category) in
-      ignore [ assert ((Sql.get theme#id) = (Sql.get cat#theme))];
+      assert ((Sql.get theme#id) = (Sql.get cat#theme));
       let content = Sql.get ar#content in
-      let tmp = function
+      let service_of_theme = function
         | "related-articles" -> related_service
-        | "ocamltuto" -> ocamltuto_service
+        | "ocaml-tuto" -> ocamltuto_service
         | _ -> main_service
       in
-      let rel = tmp ar_theme in
+      let rel = service_of_theme ar_theme in
       ignore [%client (showContent ~%content:unit)] ;
       ignore [%client (color_syntax():unit)] ;
-      skeleton
-        (Sql.get ar#title)
-          [Eliom_content.Html.D.article
-            [
-             breadcrumbs [{service=main_service;title="Home"};{service=rel;title=(Sql.get theme#label)};{service=related_service;title=(Sql.get ar#title)}];
-             h1 [pcdata (Sql.get ar#title)];
-             p [pcdata ("Created at "^(Sql.get ar#created))];
-             p [pcdata ("Last modified at "^(Sql.get ar#lastmodified))];
+      let is_chapter_page = (Sql.getn cat#article) = (Some (Sql.get ar#id)) in 
+      let bdc = match is_chapter_page, Sql.getn cat#article with
+        | false, Some chap_ar_id ->
+            let%lwt chap_ar = find_light_article_id chap_ar_id in
+            Lwt.return 
+              (breadcrumbs
+              [ `Service_s(main_service, "Home"); 
+                `Service_s(rel, Sql.get theme#label);
+                `Service_ar(article_service, Sql.get chap_ar#title, 
+                            ar_theme, Sql.get chap_ar#slg);
+                `Service_ar(article_service, Sql.get ar#title, "", "")])
+        | _ -> 
+            Lwt.return
+              (breadcrumbs
+              [ `Service_s(main_service, "Home"); 
+                `Service_s(rel, Sql.get theme#label);
+                `Service_ar(article_service, Sql.get ar#title, "", "")])
+      in
+      let body = if is_chapter_page then
+        let%lwt sec = section_of_chap (Sql.get ar#category) (Sql.get ar#id) in
+        Lwt.return 
+          (Eliom_content.Html.D.article [
+            h1 [pcdata (Sql.get ar#title)];
+            div ~a:[a_id "content"] []; ul sec;])
+      else 
+        Lwt.return
+          (Eliom_content.Html.D.article [
+            h1 [pcdata (Sql.get ar#title)];
+            p [pcdata ("Created at "^(Sql.get ar#created))];
+            p [pcdata ("Last modified at "^(Sql.get ar#lastmodified))];
             div ~a:[a_id "content"][];
-            p [a ~service:main_service [pcdata "home"] ()]]])
+            p [a ~service:main_service [pcdata "home"] ()]])
+      in
+      let%lwt bdc = bdc in
+      let%lwt body = body in
+      skeleton (Sql.get ar#title) [bdc;body])
 
 (*let%client _ = Eliom_lib.alert "Hello!"*)
