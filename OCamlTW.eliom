@@ -136,7 +136,7 @@ let section_of_chap chap_id ar_id =
   let%lwt ar_ids = articles_of_chapter chap_id ar_id in
   let ars = List.map 
     (fun ar_id -> find_article_id (Sql.get ar_id#id)) ar_ids in
-  Lwt_list.map_p 
+  Lwt_list.map_s
     (fun ar -> 
       let%lwt ar = ar in Lwt.return (
       li [a ~service:article_service
@@ -155,6 +155,7 @@ let () =
         (Printf.sprintf "Hello")): unit)];*)
       ignore [%client (he "coucouccc<br/>123456":unit)] ;
       let _ = [%client (color_syntax():unit)] in
+      close_dbs();
       skeleton 
         "OCamlTW"
         [
@@ -174,7 +175,7 @@ let () =
         breadcrumbs 
         [ `Service_s (main_service, "Home") ;
           `Service_s (ocamltuto_service, "OCaml 教學")] in
-      let body = Lwt_list.map_p
+      let body = Lwt_list.map_s
         (fun chap -> 
           let chap_ar_id = match Sql.getn chap#article with
             | Some n -> n
@@ -192,6 +193,7 @@ let () =
                 ("ocaml-tuto", chap_ar_slg)]; ul sec]])) chps
       in
       let%lwt body = body in
+      close_dbs();
       skeleton "OCaml Tuto" [bdc; h1 [pcdata "OCaml Tuto"]; ol body]);
 
   OCamlTW_app.register
@@ -201,11 +203,12 @@ let () =
       let related_ids = List.map 
         (fun sqlid -> Sql.get sqlid#id) related_ids in
       let related_ars = List.map find_light_article_id related_ids in
+      ignore [%client (color_syntax():unit)] ;
       let bdc = 
         breadcrumbs
         [ `Service_s(main_service, "Home");
           `Service_s(related_service, "相關文章")] in
-      let body = Lwt_list.map_p
+      let body = Lwt_list.map_s
         (fun ar -> 
           let%lwt ar = ar in 
           let abs = match Sql.getn ar#abstract with
@@ -220,8 +223,9 @@ let () =
                   [pcdata "read more"]
                   ("related-articles", (Sql.get ar#slg));
                 hr();]))
-        related_ars in
+      related_ars in
       let%lwt body = body in
+      close_dbs();
       skeleton "related" [bdc; ul body]);
 
   OCamlTW_app.register
@@ -276,6 +280,7 @@ let () =
       in
       let%lwt bdc = bdc in
       let%lwt body = body in
+      close_dbs();
       skeleton (Sql.get ar#title) [bdc;body])
 
 (*let%client _ = Eliom_lib.alert "Hello!"*)
