@@ -46,7 +46,7 @@ let article = <:table< article (
   lastmodified timestamp NOT NULL,
   category bigint NOT NULL,
   title text NOT NULL,
-  abstract text NOT NULL,
+  abstract text,
   content text NOT NULL,
   slg text NOT NULL,
   previous bigint,

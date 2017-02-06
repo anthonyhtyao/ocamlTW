@@ -207,15 +207,19 @@ let () =
           `Service_s(related_service, "相關文章")] in
       let body = Lwt_list.map_p
         (fun ar -> 
-          let%lwt ar = ar in Lwt.return (
-          li [a ~service:article_service 
-                [pcdata (Sql.get ar#title)] 
-                ("related-articles", (Sql.get ar#slg));
-              p [pcdata (Sql.get ar#abstract)];
-              a ~service:article_service
-                [pcdata "read more"]
-                ("related-articles", (Sql.get ar#slg));
-              hr();]))
+          let%lwt ar = ar in 
+          let abs = match Sql.getn ar#abstract with
+            | Some tex -> tex
+            | _ -> assert false in
+          Lwt.return (
+            li [a ~service:article_service 
+                  [pcdata (Sql.get ar#title)] 
+                  ("related-articles", (Sql.get ar#slg));
+                p [pcdata abs];
+                a ~service:article_service
+                  [pcdata "read more"]
+                  ("related-articles", (Sql.get ar#slg));
+                hr();]))
         related_ars in
       let%lwt body = body in
       skeleton "related" [bdc; ul body]);
