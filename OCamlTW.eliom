@@ -7,11 +7,6 @@
 ]
 
 
-[%%client 
-  let he test = (Dom_html.getElementById "divv") ##.innerHTML := (Js.string test)
-  let showContent content = (Dom_html.getElementById "content") ##.innerHTML := (Js.string content)
-]
-
 module OCamlTW_app =
   Eliom_registration.App (struct
     let application_name = "OCamlTW"
@@ -127,6 +122,11 @@ let code () =
 let%client color_syntax = 
   Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
 
+let%client showContent content = 
+  let cont_node = Dom_html.getElementById "content" in
+  cont_node##.innerHTML := (Js.string content);
+  Js.Unsafe.js_expr "hljs.highlightBlock" cont_node
+
 
 let section_of_chap chap_id ar_id =
   let%lwt cat = detail_of_category chap_id in
@@ -153,8 +153,7 @@ let () =
     (fun () () ->
       (*ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Hello")): unit)];*)
-      ignore [%client (he "coucouccc<br/>123456":unit)] ;
-      let _ = [%client (color_syntax():unit)] in
+      ignore [%client (color_syntax():unit)];
       close_dbs();
       skeleton 
         "OCamlTW"
@@ -163,7 +162,6 @@ let () =
          h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
          code ();
-         div ~a:[a_id "divv"] [] ;
          ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
              li [a ~service:related_service [pcdata "related"] ()]]]);
 
@@ -243,7 +241,6 @@ let () =
       in
       let rel = service_of_theme ar_theme in
       ignore [%client (showContent ~%content:unit)] ;
-      ignore [%client (color_syntax():unit)] ;
       let is_chapter_page = (Sql.getn cat#article) = (Some (Sql.get ar#id)) in 
       let bdc = match is_chapter_page, Sql.getn cat#article with
         | false, Some chap_ar_id ->
