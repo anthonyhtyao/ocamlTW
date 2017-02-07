@@ -2,14 +2,10 @@
     open Eliom_lib
     open Eliom_content
     open Html.D
+    open CalendarLib.Printer.Calendar
     open Database
 ]
 
-
-[%%client 
-  let he test = (Dom_html.getElementById "divv") ##.innerHTML := (Js.string test)
-  let showContent content = (Dom_html.getElementById "content") ##.innerHTML := (Js.string content)
-]
 
 module OCamlTW_app =
   Eliom_registration.App (struct
@@ -126,6 +122,11 @@ let code () =
 let%client color_syntax = 
   Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
 
+let%client showContent content = 
+  let cont_node = Dom_html.getElementById "content" in
+  cont_node##.innerHTML := (Js.string content);
+  Js.Unsafe.js_expr "hljs.highlightBlock" cont_node
+
 
 let section_of_chap chap_id ar_id =
   let%lwt cat = detail_of_category chap_id in
@@ -135,7 +136,7 @@ let section_of_chap chap_id ar_id =
   let%lwt ar_ids = articles_of_chapter chap_id ar_id in
   let ars = List.map 
     (fun ar_id -> find_article_id (Sql.get ar_id#id)) ar_ids in
-  Lwt_list.map_p 
+  Lwt_list.map_s
     (fun ar -> 
       let%lwt ar = ar in Lwt.return (
       li [a ~service:article_service
@@ -152,8 +153,8 @@ let () =
     (fun () () ->
       (*ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Hello")): unit)];*)
-      ignore [%client (he "coucouccc<br/>123456":unit)] ;
-      let _ = [%client (color_syntax():unit)] in
+      ignore [%client (color_syntax():unit)];
+      close_dbs();
       skeleton 
         "OCamlTW"
         [
@@ -161,7 +162,6 @@ let () =
          h2 ~a:[a_class ["border"]] [pcdata "我們將在這裡介紹Ocaml!!!!!"];
          h3 [pcdata "歡迎多多來參觀"];
          code ();
-         div ~a:[a_id "divv"] [] ;
          ul [li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
              li [a ~service:related_service [pcdata "related"] ()]]]);
 
@@ -173,7 +173,7 @@ let () =
         breadcrumbs 
         [ `Service_s (main_service, "Home") ;
           `Service_s (ocamltuto_service, "OCaml 教學")] in
-      let body = Lwt_list.map_p
+      let body = Lwt_list.map_s
         (fun chap -> 
           let chap_ar_id = match Sql.getn chap#article with
             | Some n -> n
@@ -191,6 +191,7 @@ let () =
                 ("ocaml-tuto", chap_ar_slg)]; ul sec]])) chps
       in
       let%lwt body = body in
+      close_dbs();
       skeleton "OCaml Tuto" [bdc; h1 [pcdata "OCaml Tuto"]; ol body]);
 
   OCamlTW_app.register
@@ -200,23 +201,29 @@ let () =
       let related_ids = List.map 
         (fun sqlid -> Sql.get sqlid#id) related_ids in
       let related_ars = List.map find_light_article_id related_ids in
+      ignore [%client (color_syntax():unit)] ;
       let bdc = 
         breadcrumbs
         [ `Service_s(main_service, "Home");
           `Service_s(related_service, "相關文章")] in
-      let body = Lwt_list.map_p
+      let body = Lwt_list.map_s
         (fun ar -> 
-          let%lwt ar = ar in Lwt.return (
-          li [a ~service:article_service 
-                [pcdata (Sql.get ar#title)] 
-                ("related-articles", (Sql.get ar#slg));
-              p [pcdata (Sql.get ar#abstract)];
-              a ~service:article_service
-                [pcdata "read more"]
-                ("related-articles", (Sql.get ar#slg));
-              hr();]))
-        related_ars in
+          let%lwt ar = ar in 
+          let abs = match Sql.getn ar#abstract with
+            | Some tex -> tex
+            | _ -> assert false in
+          Lwt.return (
+            li [a ~service:article_service 
+                  [pcdata (Sql.get ar#title)] 
+                  ("related-articles", (Sql.get ar#slg));
+                p [pcdata abs];
+                a ~service:article_service
+                  [pcdata "read more"]
+                  ("related-articles", (Sql.get ar#slg));
+                hr();]))
+      related_ars in
       let%lwt body = body in
+      close_dbs();
       skeleton "related" [bdc; ul body]);
 
   OCamlTW_app.register
@@ -234,7 +241,6 @@ let () =
       in
       let rel = service_of_theme ar_theme in
       ignore [%client (showContent ~%content:unit)] ;
-      ignore [%client (color_syntax():unit)] ;
       let is_chapter_page = (Sql.getn cat#article) = (Some (Sql.get ar#id)) in 
       let bdc = match is_chapter_page, Sql.getn cat#article with
         | false, Some chap_ar_id ->
@@ -263,13 +269,15 @@ let () =
         Lwt.return
           (Eliom_content.Html.D.article [
             h1 [pcdata (Sql.get ar#title)];
-            p [pcdata ("Created at "^(Sql.get ar#created))];
-            p [pcdata ("Last modified at "^(Sql.get ar#lastmodified))];
+            p [pcdata ("Created at "^(to_string (Sql.get ar#created)))];
+            p [pcdata 
+                ("Last modified at "^(to_string(Sql.get ar#lastmodified)))];
             div ~a:[a_id "content"][];
             p [a ~service:main_service [pcdata "home"] ()]])
       in
       let%lwt bdc = bdc in
       let%lwt body = body in
+      close_dbs();
       skeleton (Sql.get ar#title) [bdc;body])
 
 (*let%client _ = Eliom_lib.alert "Hello!"*)

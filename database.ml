@@ -13,13 +13,15 @@ module Lwt_Query = Query.Make_with_Db(Lwt_thread)(Lwt_PGOCaml)
 
 (* connected to database *)
 
-let get_db : unit -> unit Lwt_PGOCaml.t Lwt.t =
-  let db_handler = ref None in
-  fun () ->
-    match !db_handler with
-      | Some h -> Lwt.return h
-      | None -> Lwt_PGOCaml.connect ~database:"ocamltw" ~user:"postgres" ()
+let alive_dbs = ref []
 
+let get_db() : unit Lwt_PGOCaml.t Lwt.t =
+  Lwt_PGOCaml.connect ~database:"ocamltw" ~user:"postgres" () >>=
+  (fun dbh -> alive_dbs := dbh::!alive_dbs; Lwt.return dbh)
+    
+let close_dbs() =
+  let _ = List.map Lwt_PGOCaml.close !alive_dbs in
+  alive_dbs := []
 
 (* Tables (we don't create them here) *)
 
@@ -42,11 +44,11 @@ let category = <:table< category (
 (* TODO : change created and lastmodified's type to timestamptz*)
 let article = <:table< article (
   id bigint NOT NULL,
-  created text NOT NULL,
-  lastmodified text NOT NULL,
+  created timestamp NOT NULL,
+  lastmodified timestamp NOT NULL,
   category bigint NOT NULL,
   title text NOT NULL,
-  abstract text NOT NULL,
+  abstract text,
   content text NOT NULL,
   slg text NOT NULL,
   previous bigint,
@@ -62,13 +64,13 @@ let table = <:table< users (
 (* Interact with the database *)
 
 let detail_of_theme_id id =
-  get_db () >>= (fun dbh ->
+  get_db () >>= (fun dbh -> 
     Lwt_Query.view_one dbh
     <:view< { title = tem_.title ; label = tem_.label} | 
               tem_ in $theme$; tem_.id = $int64:id$; >>)
 
 let detail_of_theme_title title =
-  get_db () >>= (fun dbh ->
+  get_db () >>= (fun dbh -> 
     Lwt_Query.view_one dbh
     <:view< { id = tem_.id ; label = tem_.label} | 
               tem_ in $theme$; tem_.title = $string:title$; >>)
@@ -94,7 +96,7 @@ let chapters_of_theme theme_id =
               cat_.theme = $int64:theme_id$; >>)
 
 let find_light_article_slg slg = 
-  get_db () >>= (fun dbh ->
+  get_db () >>= (fun dbh -> 
     Lwt_Query.view_one dbh
     <:view< { id = art_.id ;
               created = art_.created;
@@ -105,7 +107,7 @@ let find_light_article_slg slg =
               art_.slg = $string:slg$ ; >>)
 
 let find_light_article_id id = 
-  get_db () >>= (fun dbh ->
+  get_db () >>= (fun dbh -> 
     Lwt_Query.view_one dbh
     <:view< { title = art_.title ;
               abstract = art_.abstract;
@@ -114,7 +116,7 @@ let find_light_article_id id =
               art_.id = $int64:id$ ; >>)
 
 let find_article_slg slg = 
-  get_db () >>= (fun dbh ->
+  get_db () >>= (fun dbh -> 
     Lwt_Query.view_one dbh
     <:view< { id = art_.id ;
               created = art_.created;
@@ -128,7 +130,7 @@ let find_article_slg slg =
               art_.slg = $string:slg$ ; >>)
 
 let find_article_id id = 
-  get_db () >>= (fun dbh ->
+  get_db () >>= (fun dbh -> 
     Lwt_Query.view_one dbh
     <:view< { title = art_.title ;
               created = art_.created;
@@ -142,7 +144,7 @@ let find_article_id id =
               art_.id = $int64:id$ ; >>)
 
 let articles_of_theme theme_id =
-  get_db () >>= (fun dbh ->
+  get_db () >>= (fun dbh -> 
     Lwt_Query.view dbh
     <:view< { id = art_.id } |
               art_ in $article$ ;
@@ -151,13 +153,13 @@ let articles_of_theme theme_id =
               cat_.id = art_.category ;>>)
 
 let articles_of_chapter chapter_id ar_id =
-  get_db () >>= (fun dbh ->
+  get_db () >>= (fun dbh ->  
     Lwt_Query.view dbh
     <:view< { id = art_.id } |
               art_ in $article$ ;
               art_.category = $int64:chapter_id$ ; 
               art_.id <> $int64:ar_id$ ;>>)
-
+(*
 let find name = 
   get_db () >>= (fun dbh ->
    Lwt_Query.view dbh
@@ -188,3 +190,4 @@ let find_pwd name =
   <:view< {pwd = user_.password} | 
            user_ in $table$; 
            user_.login = $string:name$ >>)))
+  *)
