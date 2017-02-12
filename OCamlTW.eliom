@@ -125,7 +125,15 @@ let%client color_syntax =
 let%client showContent content = 
   let cont_node = Dom_html.getElementById "content" in
   cont_node##.innerHTML := (Js.string content);
-  Js.Unsafe.js_expr "hljs.highlightBlock" cont_node
+  let code_blocks = 
+    Dom_html.document##querySelectorAll (Js.string "pre code") in
+  let l = code_blocks##.length in
+  for i = 0 to l-1 do 
+    let code = match Js.Opt.to_option (code_blocks##item i) with
+      | Some c -> c
+      | _ -> assert false
+    in
+    Js.Unsafe.js_expr "hljs.highlightBlock" code done
 
 
 let section_of_chap chap_id ar_id =
