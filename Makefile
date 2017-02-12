@@ -194,22 +194,28 @@ ${ELIOM_SERVER_DIR}/%.cmx: %.eliom
 CLIENT_LIBS := ${addprefix -package ,${CLIENT_PACKAGES}}
 CLIENT_INC  := ${addprefix -package ,${CLIENT_PACKAGES}}
 
-CLIENT_OBJS := $(filter %.eliom %.ml, $(CLIENT_FILES))
+CLIENT_OBJS := $(filter %.eliom %.ml %.mll, $(CLIENT_FILES))
 CLIENT_OBJS := $(patsubst %.eliom,${ELIOM_CLIENT_DIR}/%.cmo, ${CLIENT_OBJS})
 CLIENT_OBJS := $(patsubst %.ml,${ELIOM_CLIENT_DIR}/%.cmo, ${CLIENT_OBJS})
+CLIENT_OBJS := $(patsubst %.mll,${ELIOM_CLIENT_DIR}/%.cmo, ${CLIENT_OBJS})
 
 $(TEST_PREFIX)$(ELIOMSTATICDIR)/$(PROJECT_NAME).js: $(call objs,$(ELIOM_CLIENT_DIR),cmo,$(CLIENT_FILES)) | $(TEST_PREFIX)$(ELIOMSTATICDIR)
 	${JS_OF_ELIOM} -o $@ $(GENERATE_DEBUG) $(CLIENT_INC) $(DEBUG_JS) \
-          $(call depsort,$(ELIOM_CLIENT_DIR),cmo,-server,$(CLIENT_INC),$(CLIENT_FILES))
+	  $(ELIOM_CLIENT_DIR)/lexer_html.cmo $(call depsort,$(ELIOM_CLIENT_DIR),cmo,-client,$(CLIENT_INC),$(CLIENT_FILES))
 
-${ELIOM_CLIENT_DIR}/%.cmi: %.mli
-	${JS_OF_ELIOM} -c ${CLIENT_INC} $(GENERATE_DEBUG) $<
-
-${ELIOM_CLIENT_DIR}/%.cmo: %.eliom
+${ELIOM_CLIENT_DIR}/%.cmo: %.eliom $(ELIOM_CLIENT_DIR)/lexer_html.cmo 
 	${JS_OF_ELIOM} -ppx -c ${CLIENT_INC} $(GENERATE_DEBUG) $<
 ${ELIOM_CLIENT_DIR}/%.cmo: %.ml
 	${JS_OF_ELIOM} -c ${CLIENT_INC} $(GENERATE_DEBUG) $<
 
+${ELIOM_CLIENT_DIR}/%.cmo: ${ELIOM_CLIENT_DIR}/%.ml
+	ocamlc -c $<
+${ELIOM_CLIENT_DIR}/%.ml: %.mll
+	ocamllex -o $@ $<
+
+
+${ELIOM_CLIENT_DIR}/%.cmi: %.mli
+	${JS_OF_ELIOM} -c ${CLIENT_INC} $(GENERATE_DEBUG) $<
 ${ELIOM_CLIENT_DIR}/%.cmi: %.eliomi
 	${JS_OF_ELIOM} -ppx-c ${CLIENT_INC} $(GENERATE_DEBUG) $<
 
@@ -240,7 +246,7 @@ clean:
 	-rm -f *.cm[ioax] *.cmxa *.cmxs *.o *.a *.annot
 	-rm -f *.type_mli
 	-rm -f ${PROJECT_NAME}.js
-	-rm -rf ${ELIOM_CLIENT_DIR} ${ELIOM_SERVER_DIR}
+	-rm -rf ${ELIOM_CLIENT_DIR} ${ELIOM_SERVER_DIR} $(DEPSDIR)
 
 distclean: clean
 	-rm -rf $(TEST_PREFIX) $(DEPSDIR) .depend

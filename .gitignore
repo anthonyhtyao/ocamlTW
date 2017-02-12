@@ -17,6 +17,7 @@ _client/
 _deps/
 _server/
 local/
+test/
 # ocamlbuild targets
 *.byte
 *.native
