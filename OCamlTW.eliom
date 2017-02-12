@@ -96,6 +96,11 @@ let footer () =
   in
   let _ = [%client
     (Lwt.async (fun () ->
+      Lwt_js_events.scrolls (Dom_html.window)
+         (fun _ _ -> Dom_html.window##alert (Js.string (Printf.sprintf "Hello")); Lwt.return())):unit)
+  ] in
+  let _ = [%client
+    (Lwt.async (fun () ->
        Lwt_js_events.clicks (Html.To_dom.of_element ~%top)
          (fun _ _ -> Dom_html.window##scroll 0 0; Lwt.return())):unit)
   ] in
