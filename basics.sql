@@ -30,7 +30,7 @@ SET content =
 <pre><code>let x = 42
 let f y = x + y
 let x = 0
-let() = print_int (f(10))
+let () = print_int (f(10))
 </code></pre>
 
 在第二行我們定義了一個函數 f，對於任意傳入的參數 y，回傳 x 與 y 的和，關於更詳細的函數相關內容請見下節。
@@ -198,7 +198,7 @@ Exception: Failure "int_of_string".
 
 <pre><code class="nohighlight"># <span class="hljs-string">{|"OCaml tutorial\n"|}</span>;;
 <span class="result">- : string = "\"OCaml tutorial\\n\""</span>
-# <span class="hljs-string">{|This doesn''t work.|}<u>|}</u></span>;; 
+# <span class="hljs-string">{|This doesn''t work.|}</span><u><span class="hljs-string">|}</span></u>;; 
 <span class="result">Error: Syntax error</span>
 # <span class="hljs-string">{meow|But this works!|}|meow}</span>;;
 <span class="result">- : string = "But this works!|}"</span>

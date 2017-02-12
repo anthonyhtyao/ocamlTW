@@ -152,7 +152,9 @@ let%client highlight_article_syntax() =
                   [|(Js.Unsafe.inject (Js.string "OCaml"));
                      Js.Unsafe.inject (code_arr.(i))|]) in
               let new_code = new_code_obj##.value in
-              code_arr.(i) <- new_code
+              let new_code = Lexer_html.token 
+                (Lexing.from_string (Js.to_string new_code)) in
+              code_arr.(i) <- Js.string new_code
             else 
               let new_code = 
                 (Js.string "<span class='result'>")##concat_2
@@ -162,7 +164,7 @@ let%client highlight_article_syntax() =
           let code_arr = Js.array code_arr in
           let code_content = code_arr##join (Js.string "\n") in
           code##.innerHTML := code_content
-      | _ -> Js.Unsafe.js_expr "hljs.highlightBlock" code
+      | _ -> (Js.Unsafe.js_expr "hljs.highlightBlock") code
   done
 
 
