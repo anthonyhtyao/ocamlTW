@@ -157,7 +157,7 @@ Error: Syntax error
 - : char = ''\''''
 # int_of_char ''@'';;
 - : int = 64
-# let c = char_of_int 99;
+# let c = char_of_int 99;;
 val c : char = ''c''
 </code></pre>
 
@@ -368,7 +368,7 @@ type anime = { year : int; name : string; }
 在 OCaml 中 <code>==</code> 和 <code>!=</code> 也是存在的，不過比較的是 physical eqaulity，問的是兩個東西在記憶體中儲存的是否是一樣的內容，為此必須對物件如何在記憶體中儲存有大概的理解，實際上直覺地說，對於 mutable 的東西，我們問的就是這兩個物品是否會同時被修改，而對於 non-mutable 的型別，網站上也寫說它的結果是 implementation-dependent，除非真的很有信心不然平常盡量避免使用。而如果你不小心搞錯把想用的等於從 <code>=</code> 寫成 <code>==</code>，那就不免要得到滿滿的 <code>false</code> 囉。 
 </p>
 
-<pre><code class="toplevel"># 247 == 247
+<pre><code class="toplevel"># 247 == 247;;
 - : bool = true
 # 3.7 == 3.7;;
 - : bool = false
