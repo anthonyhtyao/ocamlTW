@@ -131,11 +131,9 @@ let skeleton title_name body_content =
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
                           ["css";"OCamlTW.css"]) ();
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
-                          ["css";"default.css"]) ();
+                          ["css";"agate.css"]) ();
          js_script ~uri:(make_uri (Eliom_service.static_dir ())
-                          ["js";"highlight.pack.js"]) ();
-         js_script ~uri:(make_uri (Eliom_service.static_dir ())
-                          ["js";"jquery.min.js"]) (); ])
+                          ["js";"highlight.pack.js"]) ();])
       (body (navbar()::
               [div ~a:[a_class ["col-md-8";"col-md-offset-2";"content"]] 
                body_content] @ footer ())))
@@ -145,13 +143,55 @@ let code () =
     pre [code [pcdata "let x = 10 in"]]
 
 
-let%client color_syntax = 
+let%client color_syntax() = 
   Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
 
 let%client showContent content = 
   let cont_node = Dom_html.getElementById "content" in
-  cont_node##.innerHTML := (Js.string content);
-  Js.Unsafe.js_expr "hljs.highlightBlock" cont_node
+  cont_node##.innerHTML := (Js.string content)
+
+let%client syntax_configure() = 
+  Js.Unsafe.eval_string 
+    "hljs.configure({tabReplace: '  ', language: ['OCaml','Python','C++']});"
+
+let%client highlight_article_syntax() =
+  let code_blocks = 
+    Dom_html.document##querySelectorAll (Js.string "pre code") in
+  let l = code_blocks##.length in
+  for i = 0 to l-1 do 
+    let code = match Js.Opt.to_option (code_blocks##item i) with
+      | Some c -> c
+      | _ -> assert false
+    in
+    match Js.to_string code##.className with
+      | "nohighlight" -> ()
+      | "toplevel" ->
+          let code_arr = 
+            Js.str_array (code##.innerHTML##split (Js.string "\n")) in
+          let code_arr = Js.to_array code_arr in
+          for i = 0 to Array.length code_arr - 1 do
+            let code_line = Js.to_string code_arr.(i) in
+            if String.length code_line > 0 && code_line.[0] = '#' then
+              let new_code_obj = 
+                 (Js.Unsafe.fun_call
+                  (Js.Unsafe.js_expr "hljs.highlight") 
+                  [|(Js.Unsafe.inject (Js.string "OCaml"));
+                     Js.Unsafe.inject (code_arr.(i))|]) in
+              let new_code = new_code_obj##.value in
+              let new_code = Lexer_html.token 
+                (Lexing.from_string (Js.to_string new_code)) in
+              code_arr.(i) <- Js.string new_code
+            else 
+              let new_code = 
+                (Js.string "<span class='result'>")##concat_2
+                code_arr.(i) (Js.string "</span>") in
+              code_arr.(i) <- new_code
+          done;
+          let code_arr = Js.array code_arr in
+          let code_content = code_arr##join (Js.string "\n") in
+          code##.innerHTML := code_content
+      | _ -> (Js.Unsafe.js_expr "hljs.highlightBlock") code
+  done
 
 let section_of_chap chap_id ar_id =
   let%lwt cat = detail_of_category chap_id in
@@ -266,6 +306,8 @@ let () =
       in
       let rel = service_of_theme ar_theme in
       ignore [%client (showContent ~%content:unit)] ;
+      ignore [%client (syntax_configure():unit)] ;
+      ignore [%client (highlight_article_syntax():unit)] ;
       let is_chapter_page = (Sql.getn cat#article) = (Some (Sql.get ar#id)) in 
       let bdc = match is_chapter_page, Sql.getn cat#article with
         | false, Some chap_ar_id ->
@@ -297,8 +339,7 @@ let () =
             p [pcdata ("Created at "^(to_string (Sql.get ar#created)))];
             p [pcdata 
                 ("Last modified at "^(to_string(Sql.get ar#lastmodified)))];
-            div ~a:[a_id "content"][];
-            p [a ~service:main_service [pcdata "home"] ()]])
+            div ~a:[a_id "content"; a_class ["article"]][]])
       in
       let%lwt bdc = bdc in
       let%lwt body = body in
