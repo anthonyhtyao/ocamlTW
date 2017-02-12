@@ -88,7 +88,7 @@ let breadcrumbs services =
 let footer () =
 (* Scroll to top when click "To Top"*)
   let top = 
-    p ~a:[a_id "back-top"]
+    p ~a:[a_id "back-top";a_class ["hidden"]]
     [
       span [];
       pcdata "To Top"
@@ -97,7 +97,12 @@ let footer () =
   let _ = [%client
     (Lwt.async (fun () ->
       Lwt_js_events.scrolls (Dom_html.window)
-         (fun _ _ -> Dom_html.window##alert (Js.string (Printf.sprintf "Hello")); Lwt.return())):unit)
+         (fun _ _ -> 
+            let y = (Js.Unsafe.js_expr "window")##.scrollY in 
+            let top_elt = Html.To_dom.of_element ~%top in
+            if y>100 
+              then top_elt##.classList##remove(Js.string "hidden")
+              else top_elt##.classList##add(Js.string "hidden"); Lwt.return())):unit)
   ] in
   let _ = [%client
     (Lwt.async (fun () ->

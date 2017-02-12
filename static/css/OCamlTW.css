@@ -52,3 +52,7 @@ body {
 #back-top span:hover {
 	background-color: #777;
 }
+
+.hidden {
+    display:none;
+}
