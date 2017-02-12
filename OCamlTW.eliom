@@ -98,11 +98,13 @@ let footer () =
     (Lwt.async (fun () ->
       Lwt_js_events.scrolls (Dom_html.window)
          (fun _ _ -> 
-            let y = (Js.Unsafe.js_expr "window")##.scrollY in 
             let top_elt = Html.To_dom.of_element ~%top in
-            if y>100 
-              then top_elt##.classList##remove(Js.string "hidden")
-              else top_elt##.classList##add(Js.string "hidden"); Lwt.return())):unit)
+            let y = (Js.Unsafe.js_expr "window")##.scrollY in
+            let aux y = 
+              match y>100 with 
+                | true  -> top_elt##.classList##remove(Js.string "hidden")
+                | false -> top_elt##.classList##add(Js.string "hidden")
+            in aux y; Lwt.return())):unit)
   ] in
   let _ = [%client
     (Lwt.async (fun () ->
