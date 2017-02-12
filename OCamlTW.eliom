@@ -122,6 +122,10 @@ let code () =
 let%client color_syntax = 
   Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
 
+let%client syntax_configure = 
+  Js.Unsafe.eval_string 
+    "hljs.configure({tabReplace: '  ', languages: ['OCaml','Python','C++']})"
+
 let%client showContent content = 
   let cont_node = Dom_html.getElementById "content" in
   cont_node##.innerHTML := (Js.string content);
@@ -249,6 +253,7 @@ let () =
       in
       let rel = service_of_theme ar_theme in
       ignore [%client (showContent ~%content:unit)] ;
+      ignore [%client (syntax_configure():unit)] ;
       let is_chapter_page = (Sql.getn cat#article) = (Some (Sql.get ar#id)) in 
       let bdc = match is_chapter_page, Sql.getn cat#article with
         | false, Some chap_ar_id ->
@@ -280,8 +285,7 @@ let () =
             p [pcdata ("Created at "^(to_string (Sql.get ar#created)))];
             p [pcdata 
                 ("Last modified at "^(to_string(Sql.get ar#lastmodified)))];
-            div ~a:[a_id "content"][];
-            p [a ~service:main_service [pcdata "home"] ()]])
+            div ~a:[a_id "content"; a_class ["article"]][]])
       in
       let%lwt bdc = bdc in
       let%lwt body = body in
