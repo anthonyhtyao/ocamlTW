@@ -25,3 +25,5 @@ test/
 # oasis generated files
 setup.data
 setup.log
+
+basics.sql
