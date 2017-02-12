@@ -86,7 +86,33 @@ let breadcrumbs services =
   ol ~a:[a_class ["breadcrumb"]] (aux [] services)
 
 let footer () =
+(* Scroll to top when click "To Top"*)
+  let top = 
+    p ~a:[a_id "back-top";a_class ["hidden"]]
+    [
+      span [];
+      pcdata "To Top"
+    ]
+  in
+  let _ = [%client
+    (Lwt.async (fun () ->
+      Lwt_js_events.scrolls (Dom_html.window)
+         (fun _ _ -> 
+            let top_elt = Html.To_dom.of_element ~%top in
+            let y = (Js.Unsafe.js_expr "window")##.scrollY in
+            let aux y = 
+              match y>100 with 
+                | true  -> top_elt##.classList##remove(Js.string "hidden")
+                | false -> top_elt##.classList##add(Js.string "hidden")
+            in aux y; Lwt.return())):unit)
+  ] in
+  let _ = [%client
+    (Lwt.async (fun () ->
+       Lwt_js_events.clicks (Html.To_dom.of_element ~%top)
+         (fun _ _ -> Dom_html.window##scroll 0 0; Lwt.return())):unit)
+  ] in
   [
+    top;
     div ~a:[a_class ["col-md-12"]]
     [
       hr ();
@@ -166,7 +192,6 @@ let%client highlight_article_syntax() =
           code##.innerHTML := code_content
       | _ -> (Js.Unsafe.js_expr "hljs.highlightBlock") code
   done
-
 
 let section_of_chap chap_id ar_id =
   let%lwt cat = detail_of_category chap_id in
