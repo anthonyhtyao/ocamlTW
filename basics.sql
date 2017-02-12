@@ -91,7 +91,7 @@ OCaml 身為一個強型別 (strongly typed) 程式語言，要將其精通對�
 第一個最基本的資料型別當然就是整數了，包含了正整數以及負整數，由於電腦的儲存空間有限 (malheureusement, on est en informatique, pas en mathématiques)，如果你使用的是 32 位元的電腦，整數本身的範圍是從 -2^30 到 2^30-1，類似的若是 64 位元的電腦的話，則是從 -2^62 到 2^62-1，下面以 64 位元為例
 </p>
 
-<pre><code># 3;;
+<pre><code class="toplevel"># 3;;
 - : int = 3
 # 20 + 5;;
 - : int = 25
@@ -115,7 +115,7 @@ OCaml 身為一個強型別 (strongly typed) 程式語言，要將其精通對�
 在 OCaml 裡的浮點數遵守 IEEE 754 標準，而且是使用 double precision number，因此表示的能力是如同 C 裡的 double 的，除了一般的小數以外，還有 <code>infinity</code>, <code>neg_infinity</code> 和 <code>nan</code> 三個特殊值用來處理特殊的情況 (好比在 Python 裡打 <code>float("inf")</code> 一樣)。
 </p>
 
-<pre><code># 3.5;;
+<pre><code class="toplevel"># 3.5;;
 - : float = 3.5
 # 8.18 +. 6.16;;
 - : float = 14.34
@@ -135,7 +135,7 @@ val pi : float = 3.14159265358979312
 真真假假，以假亂真，OCaml 也有提供布林型別，真跟假分別是 <code>true</code> 跟 <code>false</code>，第一個字母是小寫請注意。
 </p>
 
-<pre><code># true;;
+<pre><code class="toplevel"># true;;
 - : bool = true
 # false;;
 - : bool = false
@@ -149,7 +149,7 @@ val pi : float = 3.14159265358979312
 OCaml 裡面的 char 型別就相當於 256 個 ASCII 字元 (不過我們也知道在 ASCII 裡第 129 個字元以後是沒有正式定義的)，一般就是將要打的字元放在兩個 '' 之間，對於特殊字元 '' 以及 \ 的情況，必須在前面加上跳脫符號 \ 。<code>int_of_char</code> 以及 <code>char_of_int</code> 兩個函數負責字元與 ASCII code 之間的轉換。
 </p>
 
-<pre><code># ''a'';;
+<pre><code class="toplevel"># ''a'';;
 - : char = ''a''
 # <u>''</u>'''';;
 Error: Syntax error
@@ -167,7 +167,7 @@ val c : char = ''c''
 接著要談的是 string 字串，其實字串已經不能算是原始型別了，因為若要進行更進一步的操作，必須要用到 <a href=''https://caml.inria.fr/pub/docs/manual-ocaml/libref/String.html''>String</a> 這個 module，在下面我們會有一些簡單的例子，如果想要更深入了解就請直接參考前面的連結。不過既然我們都已經寫過 Hello World! 了，這裡不介紹一下字串也說不太過去，string 的內容必須打在兩個雙引號 " 裡面，規則就一如往常，要換行打 <code>\n</code>，要打出 " 則要使用跳脫字元所以要打 <code>\"</code> 等等。
 </p>
 
-<pre><code># "Hello world!";;
+<pre><code class="toplevel"># "Hello world!";;
 - : string = "Hello world!"
 # print_string "RMT\n";;
 RMT
@@ -183,9 +183,9 @@ Exception: Failure "int_of_string".
 </code></pre>
 
 <p>
-呼叫一個 module 的函數使用的語法是 <code>&lt;Module&gt;.&lt;function&gt;</code>，下面舉幾個 <code>String</code> 裡面的例子：
+呼叫一個 module 的函數使用的語法是 &lt;Module&gt;.&lt;function&gt;，下面舉幾個 <a href=''https://caml.inria.fr/pub/docs/manual-ocaml/libref/String.html''>String</a> 裡面的例子：
 
-<pre><code># String.length "This is a string";; (*字串長度*)
+<pre><code class="toplevel"># String.length "This is a string";; (*字串長度*)
 - : int = 17
 # String.make 2 ''@'';; (*重複一個字元數次構成一個字串*)
 - : string = "@@"
@@ -196,12 +196,12 @@ Exception: Failure "int_of_string".
 在 OCaml 4.02.0 之後字串型態變成不可動 (immutable) 的了，而可動的字串型態則由另一種叫做 byte 的型態代替，不過由於 imperative 的部分要留到日後再談，更深入的細節就不在這多提了。另外關於 string，除了使用跳脫字元外，實際上在版本 4.02.0 之後還有另一種能夠直接打出我們想要的內容的語法，即 <code>{|...|}</code>，目標字串擺在正中間，甚至是 <code>{id|...|id}</code>，這裡 <code>id</code> 是前後兩個任意相同的字串等等。
 </p>
 
-<pre><code># {|"OCaml tutorial\n"|};; 
-- : string = "\"OCaml tutorial\\n\""
-# {|This doesn''t work.|}<u>|}</u>;; 
-Error: Syntax error
-# {meow|But this works!|}|meow}
-- : string = "But this works!|}"
+<pre><code class="nohighlight"># <span class="hljs-string">{|"OCaml tutorial\n"|}</span>;;
+<span class="result">- : string = "\"OCaml tutorial\\n\""</span>
+# <span class="hljs-string">{|This doesn''t work.|}<u>|}</u></span>;; 
+<span class="result">Error: Syntax error</span>
+# <span class="hljs-string">{meow|But this works!|}|meow}</span>;;
+<span class="result">- : string = "But this works!|}"</span>
 </code></pre>
 
 <h3>Type unit</h3>
@@ -210,19 +210,19 @@ Error: Syntax error
 在 OCaml 中 unit 型別只包含單一值記作 ()，有點類似 C 跟 Java 中的 void，可以理解為相對應的值並不存在，例如一個沒有任何回傳值的函數回傳的就是這個型別，一個指令 (詳見 Imperative features 的章節) 本身也是被視作這個型別。
 </p>
 
-<pre><code># ();;
-- : unit = ();;
+<pre><code class="toplevel"># ();;
+- : unit = ()
 # print_endline "This instruction has type unit.";;
 This instruction has type unit.
-- : unit = ();;
+- : unit = ()
 </code></pre>
 
 <h3>n 元組 (n-tuple)</h3>
 
 <p>
-最後要提到的是 tuple，可以很方便的讓我們將好幾個不同的數值記在一起，在一個 tuple 內的元素不需要是同樣的 type，而 tuple 本身 type 的表示則是好幾個不同的 type 中間以 * 相連，另外要注意的是像是 <code>a * b * c</code> 以及 <code>(a * b) * c</code> 兩個的 type 是不一樣的。
+最後要提到的是 tuple，可以很方便的讓我們將好幾個不同的數值記在一起，在一個 tuple 內的元素不需要是同樣的 type，而 tuple 本身 type 的表示則是好幾個不同的 type 中間以 * 相連，另外要注意的是像是 a * b * c 以及 (a * b) * c 兩個的 type 是不一樣的。
 
-<pre><code># "meow", 42;;
+<pre><code class="toplevel"># "meow", 42;;
 - : string * int = ("meow", 42)
 # (3,5,7);;
 - : int * int * int = (3, 5, 7)
@@ -236,7 +236,7 @@ Error: This expression has type ''a * ''b
 在只有兩個元素也就是 pair 的情況，我們可以分別利用 <code>fst</code> 和 <code>snd</code> 取得它第一個以及第二個值，在有更多元素的情況下，其實只要在左邊撰寫可以對應起來的變數組合即可
 </p>
 
-<pre><code># let p = "hibiki", "inazuma";;
+<pre><code class="toplevel"># let p = "hibiki", "inazuma";;
 val p : string * string = ("hibiki", "inazuma")
 # fst p;;
 - : string = "hibiki"
@@ -280,7 +280,7 @@ Error: This expression has type (char * string) * int
 整數運算子主要有常見的加減乘除以及餘數運算和絕對值，如同大多數的程式語言，除計算的是歐基里德除法的商數，另外 OCaml 中並沒有是先定義好的整數冪次函數。
 </p>
 
-<pre><code># (1 + 5 * 2)/3;;
+<pre><code class="toplevel"># (1 + 5 * 2)/3;;
 - : int = 3
 # 1 / 0;;
 Exception: Division_by_zero.
@@ -295,13 +295,13 @@ val x : int = 8
 <p>
 來試試看下面的程式碼
 
-<pre><code># <u>0.87</u> +　8.94；；
+<pre><code class="toplevel"># <u>0.87</u> +　8.94；；
 Error: This expression has type float but an expression was expected of type int
 </code></pre>
 
 出現了，是野生的 type error，不過我們只不過是要將兩個小數相加，怎麼就出問題了呢？事實上就像前面提到的，OCaml 對 type 的管理非常嚴格，這份嚴謹正是構成了 OCaml 強大的地方，這點我們在 Why OCaml? 的章節裡已經再三強調過了。因此若要對浮點數做運算，運算子後面都要加上一個 . 。
 
-<pre><code># 0.87 +. 8.94;;
+<pre><code class="toplevel"># 0.87 +. 8.94;;
 - : float = 9.78
 # 3.14 *. 2.71 /. 1.41;;
 - : float = 6.03503546099290755
@@ -312,7 +312,7 @@ Error: This expression has type float but an expression was expected of type int
 同理推得在 OCaml 是沒辦法像大多數語言一樣直接做整數與小數間的運算的，必須先利用 <code>int_of_float</code> 和 <code>float_of_int</code> 進行 type conversion。一些常用到的數學函數也可以直接呼叫 (詳見 <a href = ''https://caml.inria.fr/pub/docs/manual-ocaml/libref/Pervasives.html''> Pervasives </a>  網頁)。
 
 
-<pre><code># int_of_float (-3.7);;
+<pre><code class="toplevel"># int_of_float (-3.7);;
 - : int = -3;;
 # float_of_int 87 +. 0.87;;
 - : float = 87.87;;
@@ -329,7 +329,7 @@ Error: This expression has type float but an expression was expected of type int
 比較中最簡單的莫過於大小比較，OCaml 中不只能比較整數、浮點數，也能夠對兩個字元、字串等等比大小，甚至是我們自己定義的 type，它也能夠舉一反三的自己在上面推論出一個 total ordering 呢！(後面兩個例子可以在看完自定義 type 的章節再回來品味。)
 </p>
 
-<pre><code># 1 &lt; 3;;
+<pre><code class="toplevel"># 1 &lt; 3;;
 - : bool = true
 # ''a'' &gt; ''#'';;
 - : bool = true
@@ -344,7 +344,7 @@ type t = N of char*string
 - : bool = true
 # type anime = { year:int; name:string };;
 type anime = { year : int; name : string; }
-# {year = 2006; name = "Code Geass"} &lt; {year = 1996, name = "Neon Genesis Evangelion"}
+# {year = 2006; name = "Code Geass"} &lt; {year = 1996, name = "Neon Genesis Evangelion"};;
 - : bool = false
 </code></pre>
 
@@ -352,7 +352,7 @@ type anime = { year : int; name : string; }
 接下來要談的是比較複雜的等於的部分，這個每個語言都有自己的一套玩法，像是 Python 裡面新定義的 class 直接使用 <code>==</code> 相當於問說兩個東西是否為同一個物件，如果希望有更客製化的結果則要自己寫 <code>__eq__</code> 的 method，或者說 JavaScript 必須要寫 <code>===</code> 才會對兩個變數的 type 做比較等等。而在 OCaml 中，最常使用到的等於是 <code>=</code>，只有一個等於，我們稱之為 structural equality，它會由程式自己計算，進而判斷兩個東西在結構上是否相同，也試用於自己定義的型別，不等於則寫作 <code>&lt;&gt;</code>。這種等於和大小比較，面對 <code>ref</code> 或者 mutable 的結構，比較的會是儲存的內容 (詳見後面章節)。
 </p>
 
-<pre><code># 3.7 = 3.7;;
+<pre><code class="toplevel"># 3.7 = 3.7;;
 - : bool = true
 # let a = ''a'' in let b = ''b'' in a &lt;&gt; b;;
 - : bool = true
@@ -368,7 +368,7 @@ type anime = { year : int; name : string; }
 在 OCaml 中 <code>==</code> 和 <code>!=</code> 也是存在的，不過比較的是 physical eqaulity，問的是兩個東西在記憶體中儲存的是否是一樣的內容，為此必須對物件如何在記憶體中儲存有大概的理解，實際上直覺地說，對於 mutable 的東西，我們問的就是這兩個物品是否會同時被修改，而對於 non-mutable 的型別，網站上也寫說它的結果是 implementation-dependent，除非真的很有信心不然平常盡量避免使用。而如果你不小心搞錯把想用的等於從 <code>=</code> 寫成 <code>==</code>，那就不免要得到滿滿的 <code>false</code> 囉。 
 </p>
 
-<pre><code># 247 == 247
+<pre><code class="toplevel"># 247 == 247
 - : bool = true
 # 3.7 == 3.7;;
 - : bool = false
@@ -388,11 +388,11 @@ type anime = { year : int; name : string; }
 
 上面寫得有點長了，但要記住的重點只有一個，在 OCaml 中，平常要知道兩個東西是否相等就使用 <code>=</code> 和 <code>&lt;&gt;</code> 吧。最後講解一下常見的邏輯運算子，包含且 (<code>&&</code>)、或 (<code>||</code>) 和否定 (<code>not</code>)，在 OCaml 中的 and 和 or 是 lazy 的。
 
-<pre><code># true || false;;
+<pre><code class="toplevel"># true || false;;
 - : bool = true
-# not (5 > 7) && infinity > max_float;;
+# not (5 &gt; 7) && infinity &gt; max_float;;
 - :　bool　= true
-# nan < infinity && 1/0 = 1;;
+# nan &lt; infinity && 1/0 = 1;;
 - : bool = false
 </code></pre>
 
@@ -402,13 +402,13 @@ type anime = { year : int; name : string; }
 先從一個上面沒有提到但蠻重要的運算子提起吧，若要將兩個字串連在一起，使用的是 <code>^</code> 這個奇怪的符號。
 </p>
 
-<pre><code># "C" ^ "8763";;
+<pre><code class="toplevel"># "C" ^ "8763";;
 - : string = "C8763"
 </code></pre>
 
 作為本節的結束，我們要來談位元運算子，也就是將整數看作其二進位表示並將其逐位操作的運算子，不過由於這基本上平常根本不會用到，所以其實你大可跳過這一段。位元運算子首先包含 bit by bit 的 and, or, xor 和 not 分別是 <code>land</code>, <code>lor</code>, <code>lxor</code> 和 <code>lnot</code>，舉例來說對應到 Java 的話是 <code>&</code> , <code>|</code> , <code>^</code> 以及 <code>~</code>。另外還有左移以及右移運算子，<code>lsl</code> 向左移右邊補零，<code>lsr</code> 像右移左邊補零 (logical shift)，<code>asr</code> 像右移左邊依照正負號來補 0 或 1 (arithmetic shift)，因此他們分別是對應到 Java 的 <code>&lt;&lt;</code> , <code>&gt;&gt;&gt;</code> 還有 <code>&gt;&gt;</code>。另外移的位數如果是負的或者超過位元限制，會壞掉的請小心。
 
-<pre><code># 14 land 21;;
+<pre><code class="toplevel"># 14 land 21;;
 - : int = 4
 # lnot 15;;
 - : int = -16
