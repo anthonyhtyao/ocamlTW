@@ -193,6 +193,17 @@ let%client highlight_article_syntax() =
       | _ -> (Js.Unsafe.js_expr "hljs.highlightBlock") code
   done
 
+let%client genTableOfContents() =
+  let hTwoLst = Dom.list_of_nodeList (Dom_html.document##getElementsByTagName (Js.string "h2")) in
+  let rec tableOfContents s = function
+    | [] -> s
+    | t::q -> let title = Js.to_string (t##.innerHTML) in
+              let hid = Js.to_string (t##.id) in
+    tableOfContents (s^"<p><a href='#"^hid^"'>"^title^"</a></p>") q
+  in
+  let table = Dom_html.getElementById "table_of_contents" in
+  table##.innerHTML := (Js.string (tableOfContents "" hTwoLst))
+
 let section_of_chap chap_id ar_id =
   let%lwt cat = detail_of_category chap_id in
   let _ = match (Sql.getn cat#article) with
@@ -339,10 +350,12 @@ let () =
             p [pcdata ("Created at "^(to_string (Sql.get ar#created)))];
             p [pcdata 
                 ("Last modified at "^(to_string(Sql.get ar#lastmodified)))];
+            div ~a:[a_id "table_of_contents"] [];
             div ~a:[a_id "content"; a_class ["article"]][]])
       in
       let%lwt bdc = bdc in
       let%lwt body = body in
+      ignore [%client (genTableOfContents():unit)] ;
       close_dbs();
       skeleton (Sql.get ar#title) [bdc;body])
 
