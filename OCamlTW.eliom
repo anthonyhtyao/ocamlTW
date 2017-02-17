@@ -143,18 +143,20 @@ let code () =
     pre [code [pcdata "let x = 10 in"]]
 
 
-let%client color_syntax() = 
+[%%client
+
+let color_syntax() = 
   Js.Unsafe.eval_string "hljs.initHighlightingOnLoad();"
 
-let%client showContent content = 
+let showContent content = 
   let cont_node = Dom_html.getElementById "content" in
   cont_node##.innerHTML := (Js.string content)
 
-let%client syntax_configure() = 
+let syntax_configure() = 
   Js.Unsafe.eval_string 
     "hljs.configure({tabReplace: '  ', language: ['OCaml','Python','C++']});"
 
-let%client highlight_article_syntax() =
+let highlight_article_syntax() =
   let code_blocks = 
     Dom_html.document##querySelectorAll (Js.string "pre code") in
   let l = code_blocks##.length in
@@ -166,21 +168,24 @@ let%client highlight_article_syntax() =
     match Js.to_string code##.className with
       | "nohighlight" -> ()
       | "toplevel" ->
-          let code_arr = 
-            Js.str_array (code##.innerHTML##split (Js.string "\n")) in
+          let code_text = Lexer_html.toplevel @@
+            Lexing.from_string @@ Js.to_string code##.innerHTML in
+          let code_arr =  
+            Js.str_array @@ (Js.string code_text)##split (Js.string "\n") in
           let code_arr = Js.to_array code_arr in
           for i = 0 to Array.length code_arr - 1 do
             let code_line = Js.to_string code_arr.(i) in
-            if String.length code_line > 0 && code_line.[0] = '#' then
+            if String.length code_line > 0 && code_line.[0] = '@' then 
               let new_code_obj = 
-                 (Js.Unsafe.fun_call
+                 Js.Unsafe.fun_call
                   (Js.Unsafe.js_expr "hljs.highlight") 
                   [|(Js.Unsafe.inject (Js.string "OCaml"));
-                     Js.Unsafe.inject (code_arr.(i))|]) in
+                     Js.Unsafe.inject code_arr.(i)|] in
               let new_code = new_code_obj##.value in
-              let new_code = Lexer_html.token 
-                (Lexing.from_string (Js.to_string new_code)) in
-              code_arr.(i) <- Js.string new_code
+              let new_code = Lexer_html.normal_html @@
+                Lexing.from_string (Js.to_string new_code) in
+              code_arr.(i) <- 
+                Js.string @@ String.sub new_code 1 (String.length new_code -1)
             else 
               let new_code = 
                 (Js.string "<span class='result'>")##concat_2
@@ -193,8 +198,9 @@ let%client highlight_article_syntax() =
       | _ -> (Js.Unsafe.js_expr "hljs.highlightBlock") code
   done
 
-let%client genTableOfContents() =
-  let hTwoLst = Dom.list_of_nodeList (Dom_html.document##getElementsByTagName (Js.string "h2")) in
+let genTableOfContents() =
+  let hTwoLst = Dom.list_of_nodeList 
+    (Dom_html.document##getElementsByTagName (Js.string "h2")) in
   let rec tableOfContents s = function
     | [] -> s
     | t::q -> let title = Js.to_string (t##.innerHTML) in
@@ -203,6 +209,8 @@ let%client genTableOfContents() =
   in
   let table = Dom_html.getElementById "table_of_contents" in
   table##.innerHTML := (Js.string (tableOfContents "" hTwoLst))
+
+]
 
 let section_of_chap chap_id ar_id =
   let%lwt cat = detail_of_category chap_id in

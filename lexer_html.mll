@@ -3,12 +3,24 @@
   open Lexing
 }
 
-let character = [^'&']
+let text_html = [^'&']*
 
-rule token = parse
-  | "&"                 {"&" ^ (token lexbuf)}
-  | "&gt;"              {">" ^ (token lexbuf)}
-  | "&lt;"              {"<" ^ (token lexbuf)}
-  | "&amp;"             {"&" ^ (token lexbuf)}
-  | character* as s     {s ^ (token lexbuf)}
+rule normal_html = parse
+  | "&"                 {"&" ^ (normal_html lexbuf)}
+  | "&gt;"              {">" ^ (normal_html lexbuf)}
+  | "&lt;"              {"<" ^ (normal_html lexbuf)}
+  | "&amp;"             {"&" ^ (normal_html lexbuf)}
+  | text_html as s      {s ^ (normal_html lexbuf)}
+  | eof                 {""}
+
+and toplevel = parse
+  | "#"                 {"@#" ^ (need_highlight lexbuf)}
+  | [^'#']* as s        {s ^ (toplevel lexbuf)}
+  | eof                 {""}
+
+and need_highlight = parse
+  | ";"                 {";" ^ (need_highlight lexbuf)}
+  | ";;"                {";;" ^ (toplevel lexbuf)}
+  | "\n"                {"\n@" ^ (need_highlight lexbuf)}
+  | [^'\n' ';']* as s   {s ^ (need_highlight lexbuf)}
   | eof                 {""}
