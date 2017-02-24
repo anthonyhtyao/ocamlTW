@@ -154,7 +154,8 @@ let showContent content =
 
 let syntax_configure() = 
   Js.Unsafe.eval_string 
-    "hljs.configure({tabReplace: '  ', language: ['OCaml','Python','C++']});"
+    "hljs.configure({tabReplace: '  ', 
+                     language: ['OCaml','Python','C++','Java', 'Haskell']});"
 
 let highlight_article_syntax() =
   let code_blocks = 
@@ -238,6 +239,7 @@ let () =
       (*ignore [%client (Dom_html.window##alert (Js.string 
         (Printf.sprintf "Hello")): unit)];*)
       ignore [%client (color_syntax():unit)];
+      ignore [%client (highlight_article_syntax():unit)];
       close_dbs();
       skeleton 
         "OCamlTW"

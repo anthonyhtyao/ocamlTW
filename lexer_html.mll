@@ -3,14 +3,13 @@
   open Lexing
 }
 
-let text_html = [^'&']*
-
 rule normal_html = parse
   | "&"                 {"&" ^ (normal_html lexbuf)}
   | "&gt;"              {">" ^ (normal_html lexbuf)}
   | "&lt;"              {"<" ^ (normal_html lexbuf)}
   | "&amp;"             {"&" ^ (normal_html lexbuf)}
-  | text_html as s      {s ^ (normal_html lexbuf)}
+  | "\t"                {"  " ^ (normal_html lexbuf)}
+  | [^'&' '\t']* as s   {s ^ (normal_html lexbuf)}
   | eof                 {""}
 
 and toplevel = parse
