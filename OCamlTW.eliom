@@ -231,6 +231,10 @@ let slg_of_id ar_id =
   let%lwt ar = find_light_article_id ar_id in
   Lwt.return (Sql.get ar#slg)
 
+let title_of_id ar_id =
+  let%lwt ar = find_light_article_id ar_id in
+  Lwt.return (Sql.get ar#title)
+
 (* Register services *)
 
 let () =
@@ -356,15 +360,19 @@ let () =
             div ~a:[a_id "content"] []; ul sec;])
       else
         let%lwt previous = match (Sql.getn ar#previous) with
-          | Some pid -> let%lwt slg = slg_of_id pid in
+          | Some pid -> let%lwt pre_ar = find_light_article_id pid in
+                        let title = Sql.get pre_ar#title in
+                        let slg = Sql.get pre_ar#slg in
                         Lwt.return ([a ~service:article_service
-                          [pcdata "上一篇"](ar_theme, slg)])
+                          [pcdata ("上一篇 : "^title)](ar_theme, slg)])
           | _ -> Lwt.return []
         in
         let%lwt next = match (Sql.getn ar#next) with
-          | Some pid -> let%lwt slg = slg_of_id pid in
+          | Some pid -> let%lwt next_ar = find_light_article_id pid in
+                        let title = Sql.get next_ar#title in
+                        let slg = Sql.get next_ar#slg in
                         Lwt.return ([a ~service:article_service
-                          [pcdata "下一篇"](ar_theme, slg)])
+                          [pcdata ("下一篇 : "^title)](ar_theme, slg)])
           | _ -> Lwt.return []
         in
         Lwt.return
