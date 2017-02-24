@@ -72,6 +72,7 @@ pre {
 }
 
 .article h2 {
+    line-height: 1.2em;
     border-bottom: 1px solid Grey;
     padding-bottom: 0.3em;
     margin-top: 1.3em;
@@ -93,4 +94,22 @@ pre {
 
 .toplevel .result, .nohighlight .result {
     color: silver;
+}
+
+.article .panel-default {
+    /* border: 2px solid #C7E3FF; */
+    margin-top: 1.5em;
+    margin-bottom: 1.5em;
+}
+
+.article .panel-heading {
+    text-shadow: 2px;
+    font-weight: bold;
+    color: #374048;
+    /* background-color: #C7E3FF; */
+}
+
+.article .panel-body {
+    /* background-color: #F0F7FF; */
+    padding-bottom: 5px;
 }
