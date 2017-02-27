@@ -227,6 +227,13 @@ let section_of_chap chap_id ar_id =
             [pcdata (Sql.get ar#title)]
             ("ocaml-tuto", (Sql.get ar#slg))])) ars 
 
+let slg_of_id ar_id =
+  let%lwt ar = find_light_article_id ar_id in
+  Lwt.return (Sql.get ar#slg)
+
+let title_of_id ar_id =
+  let%lwt ar = find_light_article_id ar_id in
+  Lwt.return (Sql.get ar#title)
 
 (* Register services *)
 
@@ -351,7 +358,23 @@ let () =
           (Eliom_content.Html.D.article [
             h1 [pcdata (Sql.get ar#title)];
             div ~a:[a_id "content"] []; ul sec;])
-      else 
+      else
+        let%lwt previous = match (Sql.getn ar#previous) with
+          | Some pid -> let%lwt pre_ar = find_light_article_id pid in
+                        let title = Sql.get pre_ar#title in
+                        let slg = Sql.get pre_ar#slg in
+                        Lwt.return ([a ~service:article_service
+                          [pcdata ("上一篇 : "^title)](ar_theme, slg)])
+          | _ -> Lwt.return []
+        in
+        let%lwt next = match (Sql.getn ar#next) with
+          | Some pid -> let%lwt next_ar = find_light_article_id pid in
+                        let title = Sql.get next_ar#title in
+                        let slg = Sql.get next_ar#slg in
+                        Lwt.return ([a ~service:article_service
+                          [pcdata ("下一篇 : "^title)](ar_theme, slg)])
+          | _ -> Lwt.return []
+        in
         Lwt.return
           (Eliom_content.Html.D.article [
             h1 [pcdata (Sql.get ar#title)];
@@ -359,7 +382,14 @@ let () =
             p [pcdata 
                 ("Last modified at "^(to_string(Sql.get ar#lastmodified)))];
             div ~a:[a_id "table_of_contents"] [];
-            div ~a:[a_id "content"; a_class ["article"]][]])
+            div ~a:[a_id "content"; a_class ["article"]][];
+            nav [
+              ul ~a:[a_class ["pager"]]
+              [
+                li ~a:[a_class ["previous"]] previous;
+                li ~a:[a_class ["next"]] next
+              ]
+            ]])
       in
       let%lwt bdc = bdc in
       let%lwt body = body in
