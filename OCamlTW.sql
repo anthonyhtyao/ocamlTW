@@ -84,8 +84,11 @@ VALUES
   (8, 2, '函數',
   '你 C 和 C++ 駕輕就熟同時也是 Java 能手你相信在第一節結束之後我們肯定是要
    講流程控制 if else, for 還有 while，然而竟然是函數！',
-  'functions',7,9,800),
-  (9, 2, '型別', 'Let''s talk about types.', 'typing',8,10,900),
+  'functions',7,21,800),
+  (21, 2, 'List and Option',
+  'list and option',
+  'list-option',8,9,830),
+  (9, 2, '型別', 'Let''s talk about types.', 'typing',21,10,900),
   (10, 2, 'Let''s write a tree', 
   '<pre><code>type tree = F of int | T of tree*tree</code></pre>',
   'let''s-write-a-tree',9,11,1000),
