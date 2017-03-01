@@ -52,7 +52,8 @@ let article = <:table< article (
   content text NOT NULL,
   slg text NOT NULL,
   previous bigint,
-  next bigint
+  next bigint,
+  ord bigint NOT NULL
   )>>
 
 let table = <:table< users (
@@ -146,7 +147,7 @@ let find_article_id id =
 let articles_of_theme theme_id =
   get_db () >>= (fun dbh -> 
     Lwt_Query.view dbh
-    <:view< { id = art_.id } order by art_.id desc |
+    <:view< { id = art_.id } order by art_.ord |
               art_ in $article$ ;
               cat_ in $category$ ;
               cat_.theme = $int64:theme_id$ ;
@@ -155,7 +156,7 @@ let articles_of_theme theme_id =
 let articles_of_chapter chapter_id ar_id =
   get_db () >>= (fun dbh ->  
     Lwt_Query.view dbh
-    <:view< { id = art_.id } order by art_.id |
+    <:view< { id = art_.id } order by art_.ord |
               art_ in $article$ ;
               art_.category = $int64:chapter_id$ ; 
               art_.id <> $int64:ar_id$ ;>>)
