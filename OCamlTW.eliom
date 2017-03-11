@@ -188,6 +188,10 @@ let highlight_article_syntax() =
               code_arr.(i) <- 
                 Js.string @@ String.sub new_code 1 (String.length new_code -1)
             else 
+              (*let ch_space = 
+                code_arr.(i)##replace
+                (new%js Js.regExp_withFlags (Js.string " ") (Js.string "g")) 
+                (Js.string "&ensp;") in*)
               let new_code = 
                 (Js.string "<span class='result'>")##concat_2
                 code_arr.(i) (Js.string "</span>") in
@@ -196,7 +200,13 @@ let highlight_article_syntax() =
           let code_arr = Js.array code_arr in
           let code_content = code_arr##join (Js.string "\n") in
           code##.innerHTML := code_content
-      | _ -> (Js.Unsafe.js_expr "hljs.highlightBlock") code
+      | _ -> 
+          (*let newinner = 
+            code##.innerHTML##replace 
+            (new%js Js.regExp_withFlags (Js.string " ") (Js.string "g")) 
+            (Js.string "&ensp;") in
+          code##.innerHTML := newinner;*)
+          (Js.Unsafe.js_expr "hljs.highlightBlock") code
   done
 
 let genTableOfContents() =
