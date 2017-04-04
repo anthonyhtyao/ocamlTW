@@ -17,8 +17,6 @@ _client/
 _deps/
 _server/
 local/
-test/
-articles/
 # ocamlbuild targets
 *.byte
 *.native
@@ -27,4 +25,6 @@ articles/
 setup.data
 setup.log
 
-basics.sql
+test/
+articles/
+styles/

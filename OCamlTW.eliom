@@ -155,7 +155,8 @@ let showContent content =
 let syntax_configure() = 
   Js.Unsafe.eval_string 
     "hljs.configure({tabReplace: '  ', 
-                     language: ['OCaml','Python','C++','Java', 'Haskell']});"
+                     language: 
+                       ['OCaml','Python','C++','Java', 'Haskell', 'Ada']});"
 
 let highlight_article_syntax() =
   let code_blocks = 
