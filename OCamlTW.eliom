@@ -388,12 +388,14 @@ let () =
                           [pcdata ("下一篇 : "^title)](ar_theme, slg)])
           | _ -> Lwt.return []
         in
+        let%lwt date_p = match (sprint "%F" (Sql.get ar#created)), (sprint "%F" (Sql.get ar#lastmodified)) with
+          | x, y when x = y -> Lwt.return (p [pcdata ("Created at "^x)])
+          | x, y -> Lwt.return (p ~a:[a_title ("Created at "^x)] [pcdata ("Last modified at  "^y)])
+        in
         Lwt.return
           (Eliom_content.Html.D.article [
             h1 [pcdata (Sql.get ar#title)];
-            p [pcdata ("Created at "^(to_string (Sql.get ar#created)))];
-            p [pcdata 
-                ("Last modified at "^(to_string(Sql.get ar#lastmodified)))];
+            date_p;
             div ~a:[a_id "table_of_contents"] [];
             div ~a:[a_id "content"; a_class ["article"]][];
             nav [
