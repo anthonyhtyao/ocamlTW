@@ -11,8 +11,11 @@
 }
 
 .navbar {
-    background-color:#ff944d;
-    color: white;
+    background-color:white;
+}
+
+.navbar-nav li:hover {
+    background-color: #F3F3F3;
 }
 
 .content {
@@ -113,3 +116,9 @@ pre {
     /* background-color: #F0F7FF; */
     padding-bottom: 5px;
 }
+/*
+.breadcrumb {
+    background-color: white;
+    border-bottom: 2px solid #F3F3F3;
+}
+*/

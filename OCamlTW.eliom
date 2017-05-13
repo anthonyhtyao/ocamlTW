@@ -44,7 +44,7 @@ let article_service =
 let navbar () =
   nav ~a:[a_class ["navbar"; "navbar-default"]] 
   [
-    div ~a:[a_class ["col-md-10";"col-md-offset-1"]]
+    div ~a:[a_class ["col-md-8";"col-md-offset-2"]]
     [
       div ~a:[a_class ["navbar-header"]]
       [
@@ -52,7 +52,7 @@ let navbar () =
         [
           ul ~a:[a_class ["list-inline"]]
           [
-            li [pcdata "OCAML"];
+            li ~a:[a_class ["logo-text"]] [pcdata "OCAML TW"];
             li [img ~alt:("Ocaml Logo")
                 ~src:(make_uri ~service:(Eliom_service.static_dir ()) 
                       ["fig";"OCaml.png"])
@@ -66,7 +66,8 @@ let navbar () =
         ul ~a:[a_class ["nav";"navbar-nav";"navbar-right"]]
         [
           li [a ~service:ocamltuto_service [pcdata "OCamltuto"] ()];
-          li [a ~service:related_service [pcdata "related"] ()]
+          li [a ~service:related_service [pcdata "related"] ()];
+          li []
         ]
       ]
     ]
