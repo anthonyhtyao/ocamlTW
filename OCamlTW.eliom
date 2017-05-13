@@ -132,7 +132,7 @@ let skeleton title_name body_content =
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
                           ["css";"OCamlTW.css"]) ();
          css_link ~uri:(make_uri (Eliom_service.static_dir ())
-                          ["css";"agate.css"]) ();
+                          ["css";"rainbow.css"]) ();
          js_script ~uri:(make_uri (Eliom_service.static_dir ())
                           ["js";"highlight.pack.js"]) ();])
       (body (navbar()::
