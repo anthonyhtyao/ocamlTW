@@ -1,15 +1,18 @@
 
 #----------------------------------------------------------------------
-#           SETTINGS FOR THE ELIOM PROJECT ocamlTW
+#           SETTINGS FOR THE ELIOM PROJECT OCamlTW
 #----------------------------------------------------------------------
 
 PROJECT_NAME := OCamlTW
 
 # Source files for the server
-SERVER_FILES := OCamlTW.eliom 
+# Compiling order right -> left
+SERVER_FILES := article.eliom middlepage.eliom \
+  ui.eliom methods.eliom OCamlTW.eliom
 DATAB_FILES := database.ml
 # Source files for the client
-CLIENT_FILES := OCamlTW.eliom lexer_html.mll 
+CLIENT_FILES := article.eliom middlepage.eliom \
+  ui.eliom OCamlTW.eliom lexer_html.mll
 
 # OCamlfind packages for the server
 SERVER_PACKAGES := lwt.ppx js_of_ocaml.deriving.ppx macaque.syntax
