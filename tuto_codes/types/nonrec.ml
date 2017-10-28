@@ -7,5 +7,5 @@ module Thing = struct
   end
 
   let create x  = Thing x
-  let collect xs = Collection.Collect (List.map (fun x -> Thing x) xs)
+  let collect xs = Collection.Collect (List.map create xs)
 end
