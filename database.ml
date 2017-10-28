@@ -1,4 +1,3 @@
-
 open Lwt
 
 (* madaque with Lwt *)
@@ -160,35 +159,3 @@ let articles_of_chapter chapter_id ar_id =
               art_ in $article$ ;
               art_.category = $int64:chapter_id$ ; 
               art_.id <> $int64:ar_id$ ;>>)
-(*
-let find name = 
-  get_db () >>= (fun dbh ->
-   Lwt_Query.view dbh
-   <:view< {password = user_.password} |
-            user_ in $table$;
-            user_.login = $string:name$; >>)
-
-let insert name pwd =
-  get_db () >>= (fun dbh ->
-  Lwt_Query.query dbh
-  <:insert< $table$ :=
-    { login = $string:name$; password = $string:pwd$; }>>)
-
-(* let _ = insert "hooo" "kkkskk" *)
-
-let check_pwd name pwd =
-   (get_db() >>= (fun dbh ->
-   Lwt_Query.view dbh
-   <:view< {password = user_.password} | 
-            user_ in $table$; 
-            user_.login = $string:name$; 
-            user_.password = $string:pwd$ >>))
-  >|= (function [] -> false | _ -> true)
-
-let find_pwd name =
-  get_db() >>= (fun dbh ->
-  ((Lwt_Query.view_one dbh 
-  <:view< {pwd = user_.password} | 
-           user_ in $table$; 
-           user_.login = $string:name$ >>)))
-  *)

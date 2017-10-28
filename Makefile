@@ -158,12 +158,16 @@ SERVER_INC  := ${addprefix -package ,${SERVER_PACKAGES}}
 ${ELIOM_TYPE_DIR}/%.type_mli: %.eliom
 	${ELIOMC} -ppx -infer ${SERVER_INC} $<
 
-$(TEST_PREFIX)$(LIBDIR)/$(PROJECT_NAME).cma: $(call objs,$(ELIOM_SERVER_DIR),cmo,$(SERVER_FILES) $(DATAB_FILES)) | $(TEST_PREFIX)$(LIBDIR)
+$(TEST_PREFIX)$(LIBDIR)/$(PROJECT_NAME).cma: \
+	  $(call objs,$(ELIOM_SERVER_DIR),cmo,$(DATAB_FILES) $(SERVER_FILES)) | \
+	  $(TEST_PREFIX)$(LIBDIR)
 	${ELIOMC} -a -o $@ $(GENERATE_DEBUG) \
           $(call objs,$(ELIOM_SERVER_DIR),cmo,$(DATAB_FILES)) \
 		  $(call depsort,$(ELIOM_SERVER_DIR),cmo,-server,$(SERVER_INC),$(SERVER_FILES))
 
-$(TEST_PREFIX)$(LIBDIR)/$(PROJECT_NAME).cmxa: $(call objs,$(ELIOM_SERVER_DIR),cmx,$(SERVER_FILES) $(DATAB_FILES)) | $(TEST_PREFIX)$(LIBDIR)
+$(TEST_PREFIX)$(LIBDIR)/$(PROJECT_NAME).cmxa: \
+	  $(call objs,$(ELIOM_SERVER_DIR),cmx,$(DATAB_FILES) $(SERVER_FILES)) | \
+	  $(TEST_PREFIX)$(LIBDIR)
 	${ELIOMOPT} -a -o $@ $(GENERATE_DEBUG) \
           $(call objs,$(ELIOM_SERVER_DIR),cmx,$(DATAB_FILES)) \
 		  $(call depsort,$(ELIOM_SERVER_DIR),cmx,-server,$(SERVER_INC),$(SERVER_FILES))
@@ -203,7 +207,8 @@ $(TEST_PREFIX)$(ELIOMSTATICDIR)/$(PROJECT_NAME).js: $(call objs,$(ELIOM_CLIENT_D
 	${JS_OF_ELIOM} -o $@ $(GENERATE_DEBUG) $(CLIENT_INC) $(DEBUG_JS) \
 	  $(ELIOM_CLIENT_DIR)/lexer_html.cmo $(call depsort,$(ELIOM_CLIENT_DIR),cmo,-client,$(CLIENT_INC),$(CLIENT_FILES))
 
-${ELIOM_CLIENT_DIR}/%.cmo: %.eliom $(ELIOM_CLIENT_DIR)/lexer_html.cmo 
+${ELIOM_CLIENT_DIR}/%.cmo: %.eliom $(ELIOM_CLIENT_DIR)/lexer_html.cmo \
+		$(ELIOM_TYPE_DIR)/%.type_mli
 	${JS_OF_ELIOM} -ppx -c ${CLIENT_INC} $(GENERATE_DEBUG) $<
 ${ELIOM_CLIENT_DIR}/%.cmo: %.ml
 	${JS_OF_ELIOM} -c ${CLIENT_INC} $(GENERATE_DEBUG) $<
@@ -224,7 +229,8 @@ ${ELIOM_CLIENT_DIR}/%.cmi: %.eliomi
 
 include .depend
 
-.depend: $(patsubst %,$(DEPSDIR)/%.server,$(SERVER_FILES)) $(patsubst %,$(DEPSDIR)/%.datab,$(DATAB_FILES)) $(patsubst %,$(DEPSDIR)/%.client,$(CLIENT_FILES))
+.depend: $(patsubst %,$(DEPSDIR)/%.server,$(SERVER_FILES)) $(patsubst %,$(DEPSDIR)/%.datab, \
+	  $(DATAB_FILES)) $(patsubst %,$(DEPSDIR)/%.client,$(CLIENT_FILES))
 	cat $^ > $@
 
 $(DEPSDIR)/%.server: % | $(DEPSDIR)
